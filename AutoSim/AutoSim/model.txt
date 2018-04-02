@@ -1,0 +1,17 @@
+<3>                       //number of processes
+<T:1:2:3>                 //process time
+<5>                       //buffer capacity
+<0>                       //pos in system 0-initial 1-middle 2-end
+<2>                       //downstream connections
+<X>                        //upstream connections
+<T:1:2:3>                 //process time
+<5>                       //buffer capacity
+<0>                       //pos in system 0-initial 1-middle 2-end
+<2>                       //downstream connections
+<X>                        //upstream connections
+<T:1:2:3>                 //process time
+<5>                       //buffer capacity
+<2>                       //pos in system 0-initial 1-middle 2-end
+<X>                       //downstream connections
+<0:1>                     //upstream connections
+
