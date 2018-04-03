@@ -11,15 +11,17 @@
 #define Process_hpp
 
 #include <stdio.h>
+#include <iostream>
 #include "Buffer.hpp"
 #include <string>
+#include <cmath>
 
 typedef struct{
   std::string processTime;
-  int bufferCapacity;
+  std::string bufferCapacity;
   int processPos;
-  int downStream;
-  int upStream;
+  std::string downStream;
+  std::string upStream;
 }processInfo;
 
 enum Dist{
@@ -38,13 +40,26 @@ enum ProcessType{
 //Description:
 class Process{
 private:
+  int processID;
   Buffer process_Buffer;
-  int* upStreamDependencies;//array of indices in process array
-  int* downStreamDependencies;//array of indices in process array
+  std::vector<int> upStreamDependencies;//array of indices in process array
+  std::vector<int> downStreamDependencies;//array of indices in process array
   int distType;//defines how the times are generated
   int processType;//where the process is in the line
+  float average;
+  float minimum;
+  float upper;
 public:
+  void setProcessID(int id);
+  int getProcessType();
+  void setProcessType(int type);
+  void setDistType(int type);
+  void setProcessParameters(std::string);
   float getProcessingTimeFromDist();
+  void setBufferCapacity(int val);
+  void setUpstreamDependencies(std::string);
+  void setDownstreamDependencies(std::string);
+  void printProcessInfo();
 };
 
 #endif /* Process_hpp */

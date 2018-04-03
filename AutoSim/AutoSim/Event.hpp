@@ -11,6 +11,7 @@
 #define Event_hpp
 
 #include <stdio.h>
+#include <iostream>
 
 enum EventType{
   WAIT_PULL,
@@ -29,6 +30,9 @@ private:
 public:
   Event(int pID, int jID,int eventType,float PTime);
   float getProcessTime();
+  void processEvent();
+  void printEvent();
+  int getEventType();
 };
 
 //Description:

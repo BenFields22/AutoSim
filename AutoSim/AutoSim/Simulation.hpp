@@ -21,15 +21,27 @@
 //Description:
 class Simulation{
 private:
+  int finished;
+  int jobsComplete;
+  int jobsInSystem;
+  int createJobID;
+  int startRecordRow;
+  int FinishRecordRow;
   float simTime;
+  float timeStep;
   lxw_workbook  *workbook;
   std::priority_queue <Event, std::vector<Event>, Compare> eventQueue;
   Process* simProcesses;
+  int numProcesses;
 public:
   Simulation();
   ~Simulation();
   int constructModel(std::vector<processInfo> &processes);
   void run(int numJobs);
+  void init();
+  void printModel();
+  void processNextEvent();
+  void checkIfFinished(int);
 };
 
 #endif /* Simulation_hpp */

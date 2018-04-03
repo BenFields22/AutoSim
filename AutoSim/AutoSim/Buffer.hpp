@@ -17,8 +17,8 @@
 class Buffer{
 private:
   std::queue<Event> queue;
-  int capacity;
 public:
+  int capacity;
   Event GetNext();
   void placeInBuffer(Event E);
   int isFull();
