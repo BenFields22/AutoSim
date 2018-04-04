@@ -9,23 +9,28 @@
 
 #include "Process.hpp"
 
+//Description:
 void Process::setDistType(int type){
   this->distType = type;
 }
 
+//Description:
 void Process::setProcessID(int id){
   this->processID = id;
 }
 
+//Description:
 int Process::getProcessType(){
   return this->processType;
 }
 
+//Description:
 void Process::printProcessInfo(){
   std::cout<<"\tProcess ID: "<<this->processID<<"\n";
   std::cout<<"\tDist Type: "<<this->distType<<"\n";
   std::cout<<"\tPos Type: "<<this->processType<<"\n";
   std::cout<<"\tBuffer Cap: "<<this->process_Buffer.capacity<<"\n";
+  std::cout<<"\tDownStream Dependency: "<< this->downStreamDependencies<<"\n";
   std::cout<<"\tUpStream Dependencies: ";
   for(int i = 0;i<this->upStreamDependencies.size();++i){
     std::cout<<std::to_string(upStreamDependencies[i]) + " ";
@@ -34,6 +39,7 @@ void Process::printProcessInfo(){
   
 }
 
+//Description:
 void Process::setUpstreamDependencies(std::string line){
   std::cout<<"\tSetting up upstream dependencies with string "<<line<<"\n";
   int num = atoi(line.substr(0,1).c_str());
@@ -50,11 +56,19 @@ void Process::setUpstreamDependencies(std::string line){
   std::cout<<"\n";
 }
 
+//Description:
 void Process::setDownstreamDependencies(std::string line){
   std::cout<<"\tSetting up downstream dependencies with string "<<line<<"\n";
+  if (line == "X") {
+    downStreamDependencies = -1;
+    return;
+  }
+  int num = atoi(line.substr(0,1).c_str());
+  downStreamDependencies = num;
   //TODO: Need to account for multiple output buffers
 }
 
+//Description:
 float getTrianglarDistribution(float a, float b, float c)
 {
   std::cout << "Generating a random number in the triangular distribution with low " << a << " and high " << b << " and mean of " << c << std::endl;
@@ -75,6 +89,7 @@ float getTrianglarDistribution(float a, float b, float c)
   
 }
 
+//Description:
 float Process::getProcessingTimeFromDist(){
   if (distType == TRIANGULAR) {
     return getTrianglarDistribution(minimum, upper, average);
@@ -88,16 +103,61 @@ float Process::getProcessingTimeFromDist(){
   return 0.0;
 }
 
+//Description:
 void Process::setProcessType(int type){
   this->processType = type;
   std::cout<<"\tSetting process type to "<<type<<"\n";
 }
 
+//Description:
 void Process::setBufferCapacity(int val){
   std::cout<<"\tSetting buffer capacity of "<<val<<"\n";
   this->process_Buffer.capacity = val;
 }
 
+//Description:
+int Process::getDownStreamProcess(){
+  return downStreamDependencies;
+}
+
+//Description:
+int Process::getNumUpStreamDependencies(){
+  return (int)upStreamDependencies.size();
+}
+
+//Description:
+void Process::placeEventInBuffer(Event E){
+  process_Buffer.placeInBuffer(E);
+}
+
+//Description:
+Event Process::getEventFromBuffer(){
+  return process_Buffer.GetNext();
+}
+
+//Description:
+void Process::AddOneJob(){
+  jobNum++;
+}
+
+//Description:
+std::string Process::getJobNum(){
+  return std::to_string(jobNum);
+}
+
+//Description:
+int Process::WaitForUpstreamJob(){
+  int wait = 1;
+  
+  return wait;
+}
+
+//Description:
+int Process::BufferState(){
+  return process_Buffer.getState();
+}
+
+//Description:
 void Process::setProcessParameters(std::string info){
   if (this->distType == TRIANGULAR) {
     //setParameters in process for triangular
@@ -141,8 +201,6 @@ void Process::setProcessParameters(std::string info){
         index++;
       }
     }
-    
-    
   }
   else if(this->distType==NORMAL){
     //set for normal

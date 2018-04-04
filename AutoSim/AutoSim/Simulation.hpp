@@ -25,22 +25,25 @@ private:
   int jobsComplete;
   int jobsInSystem;
   int createJobID;
-  int startRecordRow;
-  int FinishRecordRow;
   float simTime;
   float timeStep;
-  lxw_workbook  *workbook;
+  lxw_workbook* workbook;
+  lxw_worksheet* worksheet;
   std::priority_queue <Event, std::vector<Event>, Compare> eventQueue;
   Process* simProcesses;
   int numProcesses;
 public:
+  int startRecordRow;
+  int FinishRecordRow;
   Simulation();
   ~Simulation();
   int constructModel(std::vector<processInfo> &processes);
+  int getFeedBufferState(Process P);
   void run(int numJobs);
   void init();
   void printModel();
   void processNextEvent();
+  nextEventInfo processCurrentEvent(Event current, int Process);
   void checkIfFinished(int);
 };
 

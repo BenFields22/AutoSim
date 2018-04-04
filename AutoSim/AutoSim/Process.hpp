@@ -40,16 +40,23 @@ enum ProcessType{
 //Description:
 class Process{
 private:
+  int jobNum;
   int processID;
   Buffer process_Buffer;
-  std::vector<int> upStreamDependencies;//array of indices in process array
-  std::vector<int> downStreamDependencies;//array of indices in process array
+  
+  int downStreamDependencies;//array of indices in process array
   int distType;//defines how the times are generated
   int processType;//where the process is in the line
   float average;
   float minimum;
   float upper;
 public:
+  Process(){
+    jobNum = 1;
+  }
+  std::vector<int> upStreamDependencies;//array of indices in process array
+  int getNumUpStreamDependencies();
+  int getDownStreamProcess();
   void setProcessID(int id);
   int getProcessType();
   void setProcessType(int type);
@@ -60,6 +67,12 @@ public:
   void setUpstreamDependencies(std::string);
   void setDownstreamDependencies(std::string);
   void printProcessInfo();
+  void placeEventInBuffer(Event E);
+  Event getEventFromBuffer();
+  int BufferState();
+  int WaitForUpstreamJob();
+  std::string getJobNum();
+  void AddOneJob();
 };
 
 #endif /* Process_hpp */

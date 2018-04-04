@@ -12,25 +12,36 @@
 
 #include <stdio.h>
 #include <iostream>
+#include "xlsxwriter.h"
+
 
 enum EventType{
-  WAIT_PULL,
-  WAIT_PUSH,
+  PULL_BUFFER,
+  PUSH_BUFFER,
   START,
   FINISH
 };
+
+typedef struct{
+  int triggerEventType;
+  int NextProcess;
+  int eventType;
+  std::string jobID;
+  float nextTime;
+}nextEventInfo;
 
 //Description:
 class Event{
 private:
   int processID;
-  int jobID;
+  std::string jobID;
   int eventType;
   float processTime;
 public:
-  Event(int pID, int jID,int eventType,float PTime);
+  Event(int pID, std::string jID,int eventType,float PTime);
   float getProcessTime();
-  void processEvent();
+  int getProcessID();
+  std::string getJobID();
   void printEvent();
   int getEventType();
 };

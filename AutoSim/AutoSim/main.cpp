@@ -5,8 +5,11 @@
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
 //
-//  Description:
-// Next Step: Implement processing of events with correct dependencies
+//  Description: Simulation framework that creates a simulation from a text based definition.
+//  the program parses the file and creates the model. The simulation is then run producing
+//  an event log of the trial run.
+// Next Step: implement a logging system and eliminate debug statements. Fix the id to only take one id if
+// only one connection
 
 #include <iostream>
 #include "Simulation.hpp"
@@ -14,6 +17,7 @@
 #include <stdexcept>
 #include <cctype>
 
+//Description:
 int indexOfClosingBracket(std::string line){
   int ending = 1;
   int length = 0;
@@ -70,6 +74,7 @@ std::vector<processInfo> getModelDefinition(){
   return model;
 }
 
+//Description:
 void printModelDef(std::vector<processInfo> model){
   for (int i = 0; i<model.size(); ++i) {
     std::cout<<"Process: "<<i<<"\n";
@@ -89,7 +94,7 @@ int main(int argc, const char * argv[]) {
     mySim.constructModel(modelDef);
     mySim.printModel();
     mySim.init();
-    mySim.run(10);
+    mySim.run(5);
     
   } catch (const std::runtime_error& e) {
     std::cerr << e.what() << std::endl;
