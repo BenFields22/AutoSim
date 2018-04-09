@@ -71,9 +71,9 @@ void Process::setDownstreamDependencies(std::string line){
 //Description:
 float getTrianglarDistribution(float a, float b, float c)
 {
-  std::cout << "Generating a random number in the triangular distribution with low " << a << " and high " << b << " and mean of " << c << std::endl;
+  //std::cout << "Generating a random number in the triangular distribution with low " << a << " and high " << b << " and mean of " << c << std::endl;
   float randnum = (float)rand() / (float)RAND_MAX;
-  std::cout << "Rand num: " << randnum << std::endl;
+  //std::cout << "Rand num: " << randnum << std::endl;
   float fc = (c - a) / (b - a);
   float val;
   if (randnum < fc && fc > 0.0)
@@ -84,7 +84,7 @@ float getTrianglarDistribution(float a, float b, float c)
   {
     val = b - sqrt((1.0 - randnum)*(b - a) / (c - a));
   }
-  std::cout << "Value is " << val << std::endl;
+  //std::cout << "Value is " << val << std::endl;
   return val;
   
 }

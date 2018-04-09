@@ -8,14 +8,18 @@
 //  Description: Simulation framework that creates a simulation from a text based definition.
 //  the program parses the file and creates the model. The simulation is then run producing
 //  an event log of the trial run.
-// Next Step: implement a logging system and eliminate debug statements. Fix the id to only take one id if
-// only one connection
+//  Next Step: Document each function
 
 #include <iostream>
 #include "Simulation.hpp"
 #include <fstream>
 #include <stdexcept>
 #include <cctype>
+
+enum log{
+  NO_VERBOSE,
+  VERBOSE
+};
 
 //Description:
 int indexOfClosingBracket(std::string line){
@@ -94,7 +98,7 @@ int main(int argc, const char * argv[]) {
     mySim.constructModel(modelDef);
     mySim.printModel();
     mySim.init();
-    mySim.run(5);
+    mySim.run(10,VERBOSE);
     
   } catch (const std::runtime_error& e) {
     std::cerr << e.what() << std::endl;

@@ -9,6 +9,7 @@
 
 #include "Simulation.hpp"
 
+
 //Description:
 Simulation::Simulation(){
   simTime = 0.0;
@@ -69,10 +70,10 @@ int Simulation::constructModel(std::vector<processInfo> &processes){
 void Simulation::init(){
   for (int i = 0; i< numProcesses; ++i) {
     if (simProcesses[i].getProcessType() == FRONT) {
-      std::string id = simProcesses[i].getJobNum();
+      std::string id = "(" + simProcesses[i].getJobNum();
       id.append(":");
       id.append(std::to_string(i));
-      id.append("-");
+      id.append(")");
       Event E(i,id,START,simTime);
       eventQueue.push(E);
       jobsInSystem++;
@@ -109,56 +110,62 @@ int Simulation::getFeedBufferState(Process proc){
 
 //Description:
 nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentProcess){
-  std::cout<<"Process Type: "<<simProcesses[currentProcess].getProcessType()<<std::endl;
-  currentEvent.printEvent();
+  if(this->debug) std::cout<<"Process Type: "<<simProcesses[currentProcess].getProcessType()<<std::endl;
+  if(this->debug) currentEvent.printEvent();
   nextEventInfo info;
   std::string pid = std::to_string(currentProcess);
   std::string jid = currentEvent.getJobID();
   std::string resource = "worker "+pid;
   int FeedBufferState = getFeedBufferState(simProcesses[currentProcess]);
-  if (FeedBufferState == EMPTY) {
-    std::cout<<"FeedBufferState: EMPTY\n";
-  }
-  if (FeedBufferState == FULL) {
-    std::cout<<"FeedBufferState: FULL\n";
-  }
-  if (FeedBufferState == CAN_PULL) {
-    std::cout<<"FeedBufferState: CAN_PULL\n";
-  }
-  if (FeedBufferState == -1) {
-    std::cout<<"FeedBufferState: NO BUFFER\n";
-  }
   int currentBufferState = simProcesses[currentProcess].BufferState();
-  if (currentBufferState == EMPTY) {
-    std::cout<<"currentBufferState: EMPTY\n";
+  if (this->debug) {
+    if (FeedBufferState == EMPTY) {
+      std::cout<<"FeedBufferState: EMPTY\n";
+    }
+    if (FeedBufferState == FULL) {
+      std::cout<<"FeedBufferState: FULL\n";
+    }
+    if (FeedBufferState == CAN_PULL) {
+      std::cout<<"FeedBufferState: CAN_PULL\n";
+    }
+    if (FeedBufferState == -1) {
+      std::cout<<"FeedBufferState: NO BUFFER\n";
+    }
+    
+    if (currentBufferState == EMPTY) {
+      std::cout<<"currentBufferState: EMPTY\n";
+    }
+    if (currentBufferState == FULL) {
+      std::cout<<"currentBufferState: FULL\n";
+    }
+    if (currentBufferState == SPACE_LEFT) {
+      std::cout<<"currentBufferState: SPACE_LEFT\n";
+    }
+    if (currentBufferState == -1) {
+      std::cout<<"currentBufferState: NO BUFFER\n";
+    }
   }
-  if (currentBufferState == FULL) {
-    std::cout<<"currentBufferState: FULL\n";
-  }
-  if (currentBufferState == SPACE_LEFT) {
-    std::cout<<"currentBufferState: SPACE_LEFT\n";
-  }
-  if (currentBufferState == -1) {
-    std::cout<<"currentBufferState: NO BUFFER\n";
-  }
+  
   if (currentEvent.getEventType() == PULL_BUFFER) {
     //try to pull
     
     //if there is a job then pull
     if (FeedBufferState == CAN_PULL) {
       //pull job from each buffer upstream and create new start with compound id
-      std::string cid;
+      std::string cid = "(";
       for (int i =0; i<simProcesses[currentProcess].getNumUpStreamDependencies(); ++i) {
         int depend = simProcesses[currentProcess].upStreamDependencies[i];
         Event E = simProcesses[depend].getEventFromBuffer();
         cid.append(E.getJobID());
       }
-
-      std::string id = simProcesses[currentProcess].getJobNum();
+      cid.append(")");
+      std::string id = "(" + simProcesses[currentProcess].getJobNum();
       id.append(":");
       id.append(std::to_string(currentProcess));
       id.append("-");
       id.append(cid);
+      id.append(")");
+      
       info.eventType = START;
       info.jobID = id;
       info.NextProcess = currentProcess;
@@ -189,10 +196,10 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
         info.eventType = START;
         info.NextProcess = currentProcess;
         info.nextTime = simTime;
-        std::string id = simProcesses[currentProcess].getJobNum();
+        std::string id = "(" + simProcesses[currentProcess].getJobNum();
         id.append(":");
         id.append(std::to_string(currentProcess));
-        id.append("-");
+        id.append(")");
         info.jobID = id;
         info.triggerEventType = PUSH_BUFFER;
       }
@@ -260,11 +267,11 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
 
 //Description:
 void Simulation::processNextEvent(){
-  std::cout<<"\n**********PROCESSING EVENT***********\n";
+  if(this->debug) std::cout<<"\n**********PROCESSING EVENT***********\n";
   int size = (int)eventQueue.size();
-  std::cout<<"Queue Size is "<<size<<"\n";
-  std::cout<<"Jobs in system: "<<jobsInSystem<<std::endl;
-  std::cout<<"Jobs complete: "<<jobsComplete<<std::endl;
+  if(this->debug) std::cout<<"Queue Size is "<<size<<"\n";
+  if(this->debug) std::cout<<"Jobs in system: "<<jobsInSystem<<std::endl;
+  if(this->debug) std::cout<<"Jobs complete: "<<jobsComplete<<std::endl;
   
   Event currentEvent = eventQueue.top();
   eventQueue.pop();
@@ -276,8 +283,6 @@ void Simulation::processNextEvent(){
     Event next_E(next.NextProcess,next.jobID,next.eventType,next.nextTime);
     eventQueue.push(next_E);
   }
-  //jobsComplete++;
-  //jobsInSystem--;
 }
 
 //Description:
@@ -293,22 +298,18 @@ void Simulation::printModel(){
 void Simulation::checkIfFinished(int num){
   if (jobsComplete == num) {
     finished = 1;
-    std::cout<<"\nSimulation has reached finished state\n";
+    std::cout<<"Simulation has reached finished state\n";
   }
 }
 
 //Description:
-void Simulation::run(int numJobs){
-  std::cout<<"Beginning Simulation with "<<numJobs<<" Jobs\n";
+void Simulation::run(int numJobs, int verbose){
+  this->debug = verbose;
+  std::cout<<"\nBeginning Simulation with "<<numJobs<<" Jobs\n";
   //int count = 0;
   while(!finished){
     processNextEvent();
     checkIfFinished(numJobs);
-    //std::cin.get();
-    /*count++;
-    if (count == 4) {
-      finished = 1;
-    }*/
   }
   return;
 }

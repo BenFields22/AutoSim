@@ -21,6 +21,7 @@
 //Description:
 class Simulation{
 private:
+  int debug;
   int finished;
   int jobsComplete;
   int jobsInSystem;
@@ -39,7 +40,7 @@ public:
   ~Simulation();
   int constructModel(std::vector<processInfo> &processes);
   int getFeedBufferState(Process P);
-  void run(int numJobs);
+  void run(int numJobs, int verbose);
   void init();
   void printModel();
   void processNextEvent();
