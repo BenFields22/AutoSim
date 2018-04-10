@@ -8,7 +8,7 @@
 //  Description: Simulation framework that creates a simulation from a text based definition.
 //  the program parses the file and creates the model. The simulation is then run producing
 //  an event log of the trial run.
-//  Next Step: Document each function
+//  Next Step: Add normal distribution. Add diverging. Add loops
 
 #include <iostream>
 #include "Simulation.hpp"
@@ -21,7 +21,7 @@ enum log{
   VERBOSE
 };
 
-//Description:
+//Description:utility function used when parsing the model file to find the end of the line
 int indexOfClosingBracket(std::string line){
   int ending = 1;
   int length = 0;
@@ -78,7 +78,7 @@ std::vector<processInfo> getModelDefinition(){
   return model;
 }
 
-//Description:
+//Description:prints the model that is to be created from model file
 void printModelDef(std::vector<processInfo> model){
   for (int i = 0; i<model.size(); ++i) {
     std::cout<<"Process: "<<i<<"\n";
@@ -98,7 +98,7 @@ int main(int argc, const char * argv[]) {
     mySim.constructModel(modelDef);
     mySim.printModel();
     mySim.init();
-    mySim.run(10,VERBOSE);
+    mySim.run(100,NO_VERBOSE);
     
   } catch (const std::runtime_error& e) {
     std::cerr << e.what() << std::endl;

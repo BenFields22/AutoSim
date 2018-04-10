@@ -5,26 +5,26 @@
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
 //
-//  Description: 
+//  Description: Implementation of the process object
 
 #include "Process.hpp"
 
-//Description:
+//Description:defines what type of distribution a process adheres to (triangular,normal, uniform)
 void Process::setDistType(int type){
   this->distType = type;
 }
 
-//Description:
+//Description: standard function to set the process ID
 void Process::setProcessID(int id){
   this->processID = id;
 }
 
-//Description:
+//Description: standard function to return the type of process indicating where in the line it is
 int Process::getProcessType(){
   return this->processType;
 }
 
-//Description:
+//Description:prints the parameters of the current process
 void Process::printProcessInfo(){
   std::cout<<"\tProcess ID: "<<this->processID<<"\n";
   std::cout<<"\tDist Type: "<<this->distType<<"\n";
@@ -39,7 +39,7 @@ void Process::printProcessInfo(){
   
 }
 
-//Description:
+//Description:create the dependencies that will be upstream from a process
 void Process::setUpstreamDependencies(std::string line){
   std::cout<<"\tSetting up upstream dependencies with string "<<line<<"\n";
   int num = atoi(line.substr(0,1).c_str());
@@ -56,7 +56,7 @@ void Process::setUpstreamDependencies(std::string line){
   std::cout<<"\n";
 }
 
-//Description:
+//Description:create the downstream dependencies to control flow
 void Process::setDownstreamDependencies(std::string line){
   std::cout<<"\tSetting up downstream dependencies with string "<<line<<"\n";
   if (line == "X") {
@@ -68,7 +68,7 @@ void Process::setDownstreamDependencies(std::string line){
   //TODO: Need to account for multiple output buffers
 }
 
-//Description:
+//Description:return a random time for a triangular dist
 float getTrianglarDistribution(float a, float b, float c)
 {
   //std::cout << "Generating a random number in the triangular distribution with low " << a << " and high " << b << " and mean of " << c << std::endl;
@@ -89,7 +89,7 @@ float getTrianglarDistribution(float a, float b, float c)
   
 }
 
-//Description:
+//Description:bassed on the type of distribution get a random time
 float Process::getProcessingTimeFromDist(){
   if (distType == TRIANGULAR) {
     return getTrianglarDistribution(minimum, upper, average);
@@ -103,61 +103,54 @@ float Process::getProcessingTimeFromDist(){
   return 0.0;
 }
 
-//Description:
+//Description:set the type of process to indicate position in line
 void Process::setProcessType(int type){
   this->processType = type;
   std::cout<<"\tSetting process type to "<<type<<"\n";
 }
 
-//Description:
+//Description:standard setter for buffer capacity
 void Process::setBufferCapacity(int val){
   std::cout<<"\tSetting buffer capacity of "<<val<<"\n";
   this->process_Buffer.capacity = val;
 }
 
-//Description:
+//Description: returns index of the process downstream
 int Process::getDownStreamProcess(){
   return downStreamDependencies;
 }
 
-//Description:
+//Description: returns the amount of buffers feeding a process
 int Process::getNumUpStreamDependencies(){
   return (int)upStreamDependencies.size();
 }
 
-//Description:
+//Description: takes an event and places in the process buffer
 void Process::placeEventInBuffer(Event E){
   process_Buffer.placeInBuffer(E);
 }
 
-//Description:
+//Description: takes an event fromt he process buffer
 Event Process::getEventFromBuffer(){
   return process_Buffer.GetNext();
 }
 
-//Description:
+//Description: add one to the jobs complete parameter
 void Process::AddOneJob(){
   jobNum++;
 }
 
-//Description:
+//Description: get the job number for the process
 std::string Process::getJobNum(){
   return std::to_string(jobNum);
 }
 
-//Description:
-int Process::WaitForUpstreamJob(){
-  int wait = 1;
-  
-  return wait;
-}
-
-//Description:
+//Description: return the state of the process buffer (full,empty, space left)
 int Process::BufferState(){
   return process_Buffer.getState();
 }
 
-//Description:
+//Description: set the timing parameters for distribution
 void Process::setProcessParameters(std::string info){
   if (this->distType == TRIANGULAR) {
     //setParameters in process for triangular

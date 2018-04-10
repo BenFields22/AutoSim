@@ -5,7 +5,7 @@
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
 //
-//  Description: 
+//  Description: describes the structure of the event entity
 
 #ifndef Event_hpp
 #define Event_hpp
@@ -30,7 +30,7 @@ typedef struct{
   float nextTime;
 }nextEventInfo;
 
-//Description:
+//Description: class used to contain information important for processing an event in the system
 class Event{
 private:
   int processID;
@@ -46,7 +46,7 @@ public:
   int getEventType();
 };
 
-//Description:
+//Description: utility class used to compare the simtime for events when placing into the priority queue
 class Compare {
 public:
   bool operator()(Event &a, Event &b)

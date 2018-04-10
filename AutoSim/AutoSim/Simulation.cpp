@@ -5,12 +5,12 @@
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
 //
-//  Description:
+//  Description: implementatin of the simulatin class
 
 #include "Simulation.hpp"
 
 
-//Description:
+//Description:constructor to create the simulation object
 Simulation::Simulation(){
   simTime = 0.0;
   jobsComplete = 0;
@@ -29,13 +29,13 @@ Simulation::Simulation(){
   worksheet_write_string(worksheet, 0, 5,"ExitTime", NULL);
 }
 
-//Description:
+//Description:destructor to save and close excel workbook
 Simulation::~Simulation(){
   workbook_close(workbook);
   std::cout<<"Terminating simulation\n";
 }
 
-//Description:
+//Description:takes the process info from the model file and creates the simulation structure
 int Simulation::constructModel(std::vector<processInfo> &processes){
   std::cout<<"Constructing the simulation model\n";
   numProcesses = (int)processes.size();
@@ -66,7 +66,7 @@ int Simulation::constructModel(std::vector<processInfo> &processes){
   return 0;
 }
 
-//Description:
+//Description:initializes the simulation with start jobs and begins each process to wait for a job to arrive
 void Simulation::init(){
   for (int i = 0; i< numProcesses; ++i) {
     if (simProcesses[i].getProcessType() == FRONT) {
@@ -86,7 +86,7 @@ void Simulation::init(){
   }
 }
 
-//Description:
+//Description:gets the state of the upstream buffers that feed a process
 int Simulation::getFeedBufferState(Process proc){
   //check for pull
   if (proc.getNumUpStreamDependencies()==0) {
@@ -108,7 +108,7 @@ int Simulation::getFeedBufferState(Process proc){
   return state;
 }
 
-//Description:
+//Description:process the event and then create the info for the next event to be scheduled
 nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentProcess){
   if(this->debug) std::cout<<"Process Type: "<<simProcesses[currentProcess].getProcessType()<<std::endl;
   if(this->debug) currentEvent.printEvent();
@@ -265,7 +265,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
   return info;
 }
 
-//Description:
+//Description:function that takes the next job in the queue and processes the event
 void Simulation::processNextEvent(){
   if(this->debug) std::cout<<"\n**********PROCESSING EVENT***********\n";
   int size = (int)eventQueue.size();
@@ -285,7 +285,7 @@ void Simulation::processNextEvent(){
   }
 }
 
-//Description:
+//Description:utility function to print out the simulation model as created in the simulation
 void Simulation::printModel(){
   std::cout<<"Printing Model \n";
   for (int i = 0; i<numProcesses; ++i) {
@@ -294,19 +294,22 @@ void Simulation::printModel(){
   }
 }
 
-//Description:
+//Description:checks to see if the simulation has reached the terminated conditions
 void Simulation::checkIfFinished(int num){
   if (jobsComplete == num) {
     finished = 1;
+    std::cout<<"\n****************DONE*****************\n";
     std::cout<<"Simulation has reached finished state\n";
+  }
+  if (jobsComplete > num) {
+    throw std::runtime_error("ERROR: Exceeded the number of jobs complete!");
   }
 }
 
-//Description:
+//Description:launch the simulaiton for a certain number of jobs
 void Simulation::run(int numJobs, int verbose){
   this->debug = verbose;
   std::cout<<"\nBeginning Simulation with "<<numJobs<<" Jobs\n";
-  //int count = 0;
   while(!finished){
     processNextEvent();
     checkIfFinished(numJobs);

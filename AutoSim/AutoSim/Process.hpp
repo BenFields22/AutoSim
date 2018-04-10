@@ -5,7 +5,7 @@
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
 //
-//  Description: 
+//  Description: defines the structure of the process object
 
 #ifndef Process_hpp
 #define Process_hpp
@@ -37,7 +37,7 @@ enum ProcessType{
   TERMINAL
 };
 
-//Description:
+//Description: class that stores info pertaining to a process in the system
 class Process{
 private:
   int jobNum;
@@ -70,7 +70,6 @@ public:
   void placeEventInBuffer(Event E);
   Event getEventFromBuffer();
   int BufferState();
-  int WaitForUpstreamJob();
   std::string getJobNum();
   void AddOneJob();
 };

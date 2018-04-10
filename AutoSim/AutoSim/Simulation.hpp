@@ -5,7 +5,7 @@
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
 //
-//  Description: 
+//  Description: defines the use and structure of the simulation class
 
 #ifndef Simulation_hpp
 #define Simulation_hpp
@@ -18,7 +18,7 @@
 #include "xlsxwriter.h"
 #include <iostream>
 
-//Description:
+//Description: main class that runs the simulation
 class Simulation{
 private:
   int debug;
