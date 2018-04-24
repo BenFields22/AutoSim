@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  AutoSim
+//  ASAE (Automated Simulation Analysis Engine)
 //
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
@@ -8,7 +8,7 @@
 //  Description: Simulation framework that creates a simulation from a text based definition.
 //  the program parses the file and creates the model. The simulation is then run producing
 //  an event log of the trial run.
-//  Next Step: Add normal distribution. Add diverging. Add loops
+//  Next Step: Add normal distributions. Add rework.
 
 #include <iostream>
 #include "Simulation.hpp"
@@ -44,7 +44,9 @@ std::vector<processInfo> getModelDefinition(){
     throw std::runtime_error("ERROR: failed to open file!");
   }
   std::cout<<"Model file found.\n";
+  
   std::string line;
+  std::getline(myFile,line);
   std::getline(myFile,line);
   int close = indexOfClosingBracket(line);
   std::string val = line.substr(1,close);
@@ -54,12 +56,9 @@ std::vector<processInfo> getModelDefinition(){
     processInfo info;
     std::string pTime;
     std::getline(myFile, pTime);
+    std::getline(myFile, pTime);
     int ending = indexOfClosingBracket(pTime);
     info.processTime = pTime.substr(1,ending);
-    std::string bufferCap;
-    std::getline(myFile, bufferCap);
-    ending = indexOfClosingBracket(bufferCap);
-    info.bufferCapacity = bufferCap.substr(1,ending);
     std::string posType;
     std::getline(myFile, posType);
     ending = indexOfClosingBracket(posType);
@@ -73,6 +72,8 @@ std::vector<processInfo> getModelDefinition(){
     ending = indexOfClosingBracket(upStream);
     info.upStream = upStream.substr(1,ending);
     model.push_back(info);
+    std::getline(myFile, pTime);
+    std::getline(myFile, pTime);
   }
   myFile.close();
   return model;
@@ -83,7 +84,6 @@ void printModelDef(std::vector<processInfo> model){
   for (int i = 0; i<model.size(); ++i) {
     std::cout<<"Process: "<<i<<"\n";
     std::cout<<"\tProcessTime: "<<model[i].processTime<<"\n";
-    std::cout<<"\tBuffer capacity: "<<model[i].bufferCapacity<<"\n";
     std::cout<<"\tPosition: "<<model[i].processPos<<"\n";
     std::cout<<"\tDownstream connections: "<<model[i].downStream<<"\n";
     std::cout<<"\tUpstream connections: "<<model[i].upStream<<"\n";
@@ -98,11 +98,11 @@ int main(int argc, const char * argv[]) {
     mySim.constructModel(modelDef);
     mySim.printModel();
     mySim.init();
-    mySim.run(100,NO_VERBOSE);
+   mySim.run(10,NO_VERBOSE);
     
   } catch (const std::runtime_error& e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
-  }
+  } 
   return 0;
 }

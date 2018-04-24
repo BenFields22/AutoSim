@@ -1,6 +1,6 @@
 //
 //  Event.cpp
-//  AutoSim
+//  ASAE
 //
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
@@ -10,11 +10,12 @@
 #include "Event.hpp"
 
 //Description:constructor for an event to be processed in simulation
-Event::Event(int pID, std::string jID,int eventType,float pTime){
+Event::Event(int pID, std::string jID,int eventType,float pTime,int pBuffer){
   this->processID = pID;
   this->jobID = jID;
   this->eventType = eventType;
   this->processTime = pTime;
+  this->previousBuffer = pBuffer;
 }
 
 //Description:get the type of event (PUSH,PULL,START, FINISH)

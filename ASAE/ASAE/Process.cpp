@@ -1,6 +1,6 @@
 //
 //  Process.cpp
-//  AutoSim
+//  ASAE
 //
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
@@ -8,6 +8,11 @@
 //  Description: Implementation of the process object
 
 #include "Process.hpp"
+
+typedef struct{
+  float percent;
+  int index;
+}selectionChance;
 
 //Description:defines what type of distribution a process adheres to (triangular,normal, uniform)
 void Process::setDistType(int type){
@@ -29,43 +34,59 @@ void Process::printProcessInfo(){
   std::cout<<"\tProcess ID: "<<this->processID<<"\n";
   std::cout<<"\tDist Type: "<<this->distType<<"\n";
   std::cout<<"\tPos Type: "<<this->processType<<"\n";
-  std::cout<<"\tBuffer Cap: "<<this->process_Buffer.capacity<<"\n";
-  std::cout<<"\tDownStream Dependency: "<< this->downStreamDependencies<<"\n";
-  std::cout<<"\tUpStream Dependencies: ";
+  std::cout<<"\tUpstream Dependencies: "<<this->upStreamDependencies.size()<<"\n";
   for(int i = 0;i<this->upStreamDependencies.size();++i){
-    std::cout<<std::to_string(upStreamDependencies[i]) + " ";
+    std::cout<<"\t\tProcessID: "<<upStreamDependencies[i].processID<<"\n";
+    std::cout<<"\t\tBufferIndex: "<<upStreamDependencies[i].bufferIndex<<"\n";
   }
-  std::cout<<"\n";
-  
+  std::cout<<"\tDownStream Dependencies: "<<this->downStreamDependencies.size()<<"\n";
+  for(int i = 0;i<this->downStreamDependencies.size();++i){
+    std::cout<<"\t\tProcessID: "<<downStreamDependencies[i].processID<<"\n";
+    std::cout<<"\t\tPercentage: "<<downStreamDependencies[i].percentage<<"\n";
+    std::cout<<"\t\tBuffer Capacity: "<<downStreamDependencies[i].capacity<<"\n";
+  }
 }
 
-//Description:create the dependencies that will be upstream from a process
+//Description:create the dependencies that will be upstream from a process. limited to 0-9
 void Process::setUpstreamDependencies(std::string line){
   std::cout<<"\tSetting up upstream dependencies with string "<<line<<"\n";
-  int num = atoi(line.substr(0,1).c_str());
-  int index = 2;
-  for (int i = 0; i<num; ++i) {
-    int val = atoi(line.substr(index,1).c_str());
-    upStreamDependencies.push_back(val);
-    index = index +2;
+  int num = std::atoi(line.substr(0,1).c_str());
+  std::cout<<"There are "<<num<<" upstream dependencies\n";
+  int start = 3;
+  for(int i = 0;i<num;i++){
+    //create each dependency
+    upStreamConnection conn;
+    conn.processID = std::atoi(line.substr(start,1).c_str());
+    conn.bufferIndex = std::atoi(line.substr(start+2,1).c_str());
+    upStreamDependencies.push_back(conn);
+    start = start + 6;
   }
-  std::cout<<"\tDependencies: ";
-  for (int i = 0; i<upStreamDependencies.size(); ++i) {
-    std::cout<<upStreamDependencies[i]<<" ";
-  }
-  std::cout<<"\n";
 }
 
-//Description:create the downstream dependencies to control flow
+//Description:create the downstream dependencies to control flow. limited to 0-9
 void Process::setDownstreamDependencies(std::string line){
   std::cout<<"\tSetting up downstream dependencies with string "<<line<<"\n";
-  if (line == "X") {
-    downStreamDependencies = -1;
-    return;
+  int num = std::atoi(line.substr(0,1).c_str());
+  std::cout<<"There are "<<num<<" downstream dependencies\n";
+  int start = 2;
+  float total = 0.0;
+  for(int i = 0;i<num;i++){
+    //create each dependency
+    downStreamConnection conn;
+    conn.processID = std::atoi(line.substr(start,1).c_str());
+    conn.percentage = std::atof(line.substr(start+2,4).c_str());
+    total = total + conn.percentage;
+    conn.capacity = std::atoi(line.substr(start+7,1).c_str());
+    downStreamDependencies.push_back(conn);
+    Buffer buff;
+    buff.capacity = conn.capacity;
+    process_Buffers.push_back(buff);
+    start = start +9;
   }
-  int num = atoi(line.substr(0,1).c_str());
-  downStreamDependencies = num;
-  //TODO: Need to account for multiple output buffers
+  
+  if(abs(total-1.00) > 0.0001 && num != 0){
+    throw std::runtime_error("\nDOWNSTREAM CONNECTION ERROR: Downstream branching percentages must equal 1.00\n");
+  }
 }
 
 //Description:return a random time for a triangular dist
@@ -110,14 +131,67 @@ void Process::setProcessType(int type){
 }
 
 //Description:standard setter for buffer capacity
-void Process::setBufferCapacity(int val){
+void Process::setBufferCapacity(int val,int ind){
   std::cout<<"\tSetting buffer capacity of "<<val<<"\n";
-  this->process_Buffer.capacity = val;
+  this->process_Buffers[ind].capacity = val;
 }
 
-//Description: returns index of the process downstream
-int Process::getDownStreamProcess(){
-  return downStreamDependencies;
+
+struct greater_than_key
+{
+  inline bool operator() (const selectionChance& struct1, const selectionChance& struct2)
+  {
+    return (struct1.percent > struct2.percent);
+  }
+};
+
+int Process::getBufferIndexToPush(){
+  std::cout<<"Choosing buffer to push\n";
+  int numdep = (int)downStreamDependencies.size();
+  std::vector<selectionChance> options;
+  for(int i = 0;i<numdep;i++){
+    selectionChance option;
+    option.percent = downStreamDependencies[i].percentage;
+    option.index = i;
+    options.push_back(option);
+  }
+  std::sort(options.begin(), options.end(),greater_than_key());
+  std::cout<<"Sorted percentages: ";
+  for(int i = 0; i<numdep;i++){
+    std::cout<<"("<<options[i].percent<<","<<options[i].index<<")|";
+  }
+  std::cout<<"\n";
+  
+  int ans = 0;
+  int v2 = rand() % 100 + 1;
+  float percentR = (float)v2/100.0;
+  std::cout<<"Rand percentage: "<<percentR<<"\n";
+  float totalPercentage = 0.0;
+  for(int i = 0;i<numdep;i++){
+    totalPercentage = totalPercentage+options[i].percent;
+    if(i == 0 && percentR <= totalPercentage){
+      //select first
+      ans = i;
+      break;
+    }
+    else if(i == numdep-1){
+      ans = i;
+      break;
+    }
+    else{
+      if(percentR<=totalPercentage){
+        ans = i;
+        break;
+      }
+    }
+  }
+  std::cout<<"Selected index "<<ans<<" with probability of "<<options[ans].percent<<"\n";
+  return ans;
+}
+
+//Description: returns index of the process buffer downstream to place into
+int Process::getNumDownStreamDependencies(){
+  return (int)downStreamDependencies.size();
 }
 
 //Description: returns the amount of buffers feeding a process
@@ -126,13 +200,13 @@ int Process::getNumUpStreamDependencies(){
 }
 
 //Description: takes an event and places in the process buffer
-void Process::placeEventInBuffer(Event E){
-  process_Buffer.placeInBuffer(E);
+void Process::placeEventInBuffer(Event E,int ind){
+  process_Buffers[ind].placeInBuffer(E);
 }
 
 //Description: takes an event fromt he process buffer
-Event Process::getEventFromBuffer(){
-  return process_Buffer.GetNext();
+Event Process::getEventFromBuffer(int ind){
+  return process_Buffers[ind].GetNext();
 }
 
 //Description: add one to the jobs complete parameter
@@ -146,8 +220,8 @@ std::string Process::getJobNum(){
 }
 
 //Description: return the state of the process buffer (full,empty, space left)
-int Process::BufferState(){
-  return process_Buffer.getState();
+int Process::BufferState(int i){
+  return process_Buffers[i].getState();
 }
 
 //Description: set the timing parameters for distribution

@@ -1,6 +1,6 @@
 //
 //  Event.hpp
-//  AutoSim
+//  ASAE
 //
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
@@ -28,6 +28,7 @@ typedef struct{
   int eventType;
   std::string jobID;
   float nextTime;
+  int previousBuffer;
 }nextEventInfo;
 
 //Description: class used to contain information important for processing an event in the system
@@ -38,7 +39,8 @@ private:
   int eventType;
   float processTime;
 public:
-  Event(int pID, std::string jID,int eventType,float PTime);
+  int previousBuffer;
+  Event(int pID, std::string jID,int eventType,float PTime,int previousBuffer = -1);
   float getProcessTime();
   int getProcessID();
   std::string getJobID();

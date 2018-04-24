@@ -1,6 +1,6 @@
 //
 //  Process.hpp
-//  AutoSim
+//  ASAE
 //
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
@@ -15,14 +15,25 @@
 #include "Buffer.hpp"
 #include <string>
 #include <cmath>
+#include <algorithm>
 
 typedef struct{
   std::string processTime;
-  std::string bufferCapacity;
   int processPos;
   std::string downStream;
   std::string upStream;
 }processInfo;
+
+typedef struct{
+  int processID;
+  float percentage;
+  int capacity;
+}downStreamConnection;
+
+typedef struct{
+  int processID;
+  int bufferIndex;
+}upStreamConnection;
 
 enum Dist{
   TRIANGULAR,
@@ -42,9 +53,8 @@ class Process{
 private:
   int jobNum;
   int processID;
-  Buffer process_Buffer;
   
-  int downStreamDependencies;//array of indices in process array
+  
   int distType;//defines how the times are generated
   int processType;//where the process is in the line
   float average;
@@ -54,22 +64,25 @@ public:
   Process(){
     jobNum = 1;
   }
-  std::vector<int> upStreamDependencies;//array of indices in process array
+  std::vector<Buffer> process_Buffers;
+  std::vector<downStreamConnection> downStreamDependencies;
+  std::vector<upStreamConnection> upStreamDependencies;
   int getNumUpStreamDependencies();
-  int getDownStreamProcess();
+  int getNumDownStreamDependencies();
   void setProcessID(int id);
   int getProcessType();
+  int getBufferIndexToPush();
   void setProcessType(int type);
   void setDistType(int type);
   void setProcessParameters(std::string);
   float getProcessingTimeFromDist();
-  void setBufferCapacity(int val);
+  void setBufferCapacity(int val,int ind);
   void setUpstreamDependencies(std::string);
   void setDownstreamDependencies(std::string);
   void printProcessInfo();
-  void placeEventInBuffer(Event E);
-  Event getEventFromBuffer();
-  int BufferState();
+  void placeEventInBuffer(Event E,int ind);
+  Event getEventFromBuffer(int ind);
+  int BufferState(int i);
   std::string getJobNum();
   void AddOneJob();
 };

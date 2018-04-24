@@ -1,6 +1,6 @@
 //
 //  Simulation.cpp
-//  AutoSim
+//  ASAE
 //
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
@@ -19,7 +19,7 @@ Simulation::Simulation(){
   createJobID = 1;
   startRecordRow = 1;
   FinishRecordRow = 1;
-  timeStep = 0.002;
+  timeStep = 0.0002;
   workbook  = workbook_new("EventLog.xlsx");
   worksheet = workbook_add_worksheet(workbook, NULL);
   worksheet_write_string(worksheet, 0, 0,"JobID Start", NULL);
@@ -54,10 +54,6 @@ int Simulation::constructModel(std::vector<processInfo> &processes){
       simProcesses[i].setDistType(UNIFORM);
     }
     simProcesses[i].setProcessParameters(processes[i].processTime);
-    if(processes[i].bufferCapacity != "X")
-      simProcesses[i].setBufferCapacity(atoi(processes[i].bufferCapacity.c_str()));
-    else
-      simProcesses[i].setBufferCapacity(-1);
     simProcesses[i].setProcessType(processes[i].processPos);
     simProcesses[i].setUpstreamDependencies(processes[i].upStream);
     simProcesses[i].setDownstreamDependencies(processes[i].downStream);
@@ -94,8 +90,9 @@ int Simulation::getFeedBufferState(Process proc){
   }
   int state = EMPTY;
   for (int i = 0; i<proc.getNumUpStreamDependencies(); ++i) {
-    int pos = proc.upStreamDependencies[i];
-    int buffState = simProcesses[pos].BufferState();
+    int pos = proc.upStreamDependencies[i].processID;
+    int buffIndex = proc.upStreamDependencies[i].bufferIndex;
+    int buffState = simProcesses[pos].BufferState(buffIndex);
     if (buffState == EMPTY) {
       state = EMPTY;
       break;
@@ -117,7 +114,6 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
   std::string jid = currentEvent.getJobID();
   std::string resource = "worker "+pid;
   int FeedBufferState = getFeedBufferState(simProcesses[currentProcess]);
-  int currentBufferState = simProcesses[currentProcess].BufferState();
   if (this->debug) {
     if (FeedBufferState == EMPTY) {
       std::cout<<"FeedBufferState: EMPTY\n";
@@ -131,20 +127,46 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
     if (FeedBufferState == -1) {
       std::cout<<"FeedBufferState: NO BUFFER\n";
     }
-    
-    if (currentBufferState == EMPTY) {
-      std::cout<<"currentBufferState: EMPTY\n";
-    }
-    if (currentBufferState == FULL) {
-      std::cout<<"currentBufferState: FULL\n";
-    }
-    if (currentBufferState == SPACE_LEFT) {
-      std::cout<<"currentBufferState: SPACE_LEFT\n";
-    }
-    if (currentBufferState == -1) {
-      std::cout<<"currentBufferState: NO BUFFER\n";
-    }
   }
+    
+    //select the buffer to place into if need to push
+    int BuffertoPush;
+    if(currentEvent.previousBuffer != -1)
+    {
+      BuffertoPush = currentEvent.previousBuffer;
+    }
+    else{
+      if(simProcesses[currentProcess].getNumDownStreamDependencies()<2){
+        BuffertoPush = 0;
+        currentEvent.previousBuffer = 0;
+      }
+      else{
+        BuffertoPush = simProcesses[currentProcess].getBufferIndexToPush();
+        currentEvent.previousBuffer = BuffertoPush;
+      }
+    }
+    int currentBufferState;
+    if(simProcesses[currentProcess].getNumDownStreamDependencies()==0){
+      currentBufferState = -1;
+    }
+    else{
+      currentBufferState = simProcesses[currentProcess].BufferState(BuffertoPush);
+    }
+  
+    if(this->debug){
+      if (currentBufferState == EMPTY) {
+        std::cout<<"pushBufferState: EMPTY\n";
+      }
+      if (currentBufferState == FULL) {
+        std::cout<<"pushBufferState: FULL\n";
+      }
+      if (currentBufferState == SPACE_LEFT) {
+        std::cout<<"pushBufferState: SPACE_LEFT\n";
+      }
+      if (currentBufferState == -1) {
+        std::cout<<"pushBufferState: NO BUFFER\n";
+      }
+    }
   
   if (currentEvent.getEventType() == PULL_BUFFER) {
     //try to pull
@@ -154,8 +176,9 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       //pull job from each buffer upstream and create new start with compound id
       std::string cid = "(";
       for (int i =0; i<simProcesses[currentProcess].getNumUpStreamDependencies(); ++i) {
-        int depend = simProcesses[currentProcess].upStreamDependencies[i];
-        Event E = simProcesses[depend].getEventFromBuffer();
+        int depend = simProcesses[currentProcess].upStreamDependencies[i].processID;
+        int buff = simProcesses[currentProcess].upStreamDependencies[i].bufferIndex;
+        Event E = simProcesses[depend].getEventFromBuffer(buff);
         cid.append(E.getJobID());
       }
       cid.append(")");
@@ -171,6 +194,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.NextProcess = currentProcess;
       info.nextTime = simTime;
       info.triggerEventType = PULL_BUFFER;
+      info.previousBuffer = -1;
     }
     else{
       //if no jobs then schedule another pull
@@ -179,6 +203,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.NextProcess = currentProcess;
       info.triggerEventType = PULL_BUFFER;
       info.nextTime = simTime + timeStep;
+      info.previousBuffer = -1;
     }
   }
   else if(currentEvent.getEventType() == PUSH_BUFFER){
@@ -189,7 +214,8 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       //if not full then place into buffer and schedule pull unless at beginning you schedule a start
       
       //push on buffer
-      simProcesses[currentProcess].placeEventInBuffer(currentEvent);
+      currentEvent.previousBuffer = -1;
+      simProcesses[currentProcess].placeEventInBuffer(currentEvent,BuffertoPush);
       if (simProcesses[currentProcess].getProcessType()==FRONT) {
         //schedule a start
         jobsInSystem++;
@@ -202,6 +228,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
         id.append(")");
         info.jobID = id;
         info.triggerEventType = PUSH_BUFFER;
+        info.previousBuffer = -1;
       }
       else{
         //schedule a pull
@@ -210,6 +237,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
         info.nextTime = simTime;
         info.jobID = "-1";
         info.triggerEventType = PUSH_BUFFER;
+        info.previousBuffer = -1;
       }
     }
     else{
@@ -219,6 +247,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.NextProcess = currentProcess;
       info.nextTime = simTime+timeStep;
       info.triggerEventType = PUSH_BUFFER;
+      info.previousBuffer = BuffertoPush;
     }
   }
   else if(currentEvent.getEventType() == START){
@@ -233,6 +262,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
     info.NextProcess = currentProcess;
     info.nextTime = simTime+simProcesses[currentProcess].getProcessingTimeFromDist();
     info.triggerEventType = START;
+    info.previousBuffer = -1;
     
   }
   else if(currentEvent.getEventType() == FINISH){
@@ -251,14 +281,16 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.NextProcess = currentProcess;
       info.nextTime = simTime;
       info.triggerEventType = FINISH;
+      info.previousBuffer = -1;
     }
     else{
-      //if not terminal need to try to schdule push
+      //if not terminal need to try to schedule push
       info.eventType = PUSH_BUFFER;
       info.jobID = jid;
       info.NextProcess = currentProcess;
       info.nextTime = simTime;
       info.triggerEventType = FINISH;
+      info.previousBuffer = -1;
     }
   }
   //return -1 -1 if no event is to be scheduled
@@ -280,7 +312,7 @@ void Simulation::processNextEvent(){
   nextEventInfo next = processCurrentEvent(currentEvent,currentProcess);
   
   if (next.NextProcess != -1) {
-    Event next_E(next.NextProcess,next.jobID,next.eventType,next.nextTime);
+    Event next_E(next.NextProcess,next.jobID,next.eventType,next.nextTime,next.previousBuffer);
     eventQueue.push(next_E);
   }
 }
