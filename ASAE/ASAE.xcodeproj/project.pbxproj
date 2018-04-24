@@ -7,7 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		77CA5528208EB6BD00E5A4F8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CA5527208EB6BD00E5A4F8 /* main.cpp */; };
+		77CA553F208EB75800E5A4F8 /* libxlsxwriter.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 77CA553E208EB75700E5A4F8 /* libxlsxwriter.dylib */; };
+		77CA555C208EB8E400E5A4F8 /* Event.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CA5552208EB8E300E5A4F8 /* Event.cpp */; };
+		77CA555D208EB8E400E5A4F8 /* Process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CA5554208EB8E300E5A4F8 /* Process.cpp */; };
+		77CA555E208EB8E400E5A4F8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CA5556208EB8E300E5A4F8 /* main.cpp */; };
+		77CA555F208EB8E400E5A4F8 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CA5557208EB8E300E5A4F8 /* Buffer.cpp */; };
+		77CA5560208EB8E400E5A4F8 /* Simulation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CA5558208EB8E300E5A4F8 /* Simulation.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,11 +25,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		77CA5540208EB7EE00E5A4F8 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		77CA5524208EB6BD00E5A4F8 /* ASAE */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ASAE; sourceTree = BUILT_PRODUCTS_DIR; };
-		77CA5527208EB6BD00E5A4F8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		77CA553E208EB75700E5A4F8 /* libxlsxwriter.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxlsxwriter.dylib; path = ../../../../../usr/local/Cellar/libxlsxwriter/0.7.6/lib/libxlsxwriter.dylib; sourceTree = "<group>"; };
+		77CA5552208EB8E300E5A4F8 /* Event.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Event.cpp; sourceTree = "<group>"; };
+		77CA5553208EB8E300E5A4F8 /* model.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = model.txt; sourceTree = "<group>"; };
+		77CA5554208EB8E300E5A4F8 /* Process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Process.cpp; sourceTree = "<group>"; };
+		77CA5555208EB8E300E5A4F8 /* Buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Buffer.hpp; sourceTree = "<group>"; };
+		77CA5556208EB8E300E5A4F8 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		77CA5557208EB8E300E5A4F8 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
+		77CA5558208EB8E300E5A4F8 /* Simulation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Simulation.cpp; sourceTree = "<group>"; };
+		77CA5559208EB8E300E5A4F8 /* Simulation.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Simulation.hpp; sourceTree = "<group>"; };
+		77CA555A208EB8E300E5A4F8 /* Event.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Event.hpp; sourceTree = "<group>"; };
+		77CA555B208EB8E400E5A4F8 /* Process.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Process.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				77CA553F208EB75800E5A4F8 /* libxlsxwriter.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,6 +68,7 @@
 			children = (
 				77CA5526208EB6BD00E5A4F8 /* ASAE */,
 				77CA5525208EB6BD00E5A4F8 /* Products */,
+				77CA553D208EB75700E5A4F8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,9 +83,26 @@
 		77CA5526208EB6BD00E5A4F8 /* ASAE */ = {
 			isa = PBXGroup;
 			children = (
-				77CA5527208EB6BD00E5A4F8 /* main.cpp */,
+				77CA5557208EB8E300E5A4F8 /* Buffer.cpp */,
+				77CA5555208EB8E300E5A4F8 /* Buffer.hpp */,
+				77CA5552208EB8E300E5A4F8 /* Event.cpp */,
+				77CA555A208EB8E300E5A4F8 /* Event.hpp */,
+				77CA5556208EB8E300E5A4F8 /* main.cpp */,
+				77CA5553208EB8E300E5A4F8 /* model.txt */,
+				77CA5554208EB8E300E5A4F8 /* Process.cpp */,
+				77CA555B208EB8E400E5A4F8 /* Process.hpp */,
+				77CA5558208EB8E300E5A4F8 /* Simulation.cpp */,
+				77CA5559208EB8E300E5A4F8 /* Simulation.hpp */,
 			);
 			path = ASAE;
+			sourceTree = "<group>";
+		};
+		77CA553D208EB75700E5A4F8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				77CA553E208EB75700E5A4F8 /* libxlsxwriter.dylib */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -72,6 +115,7 @@
 				77CA5520208EB6BD00E5A4F8 /* Sources */,
 				77CA5521208EB6BD00E5A4F8 /* Frameworks */,
 				77CA5522208EB6BD00E5A4F8 /* CopyFiles */,
+				77CA5540208EB7EE00E5A4F8 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -118,7 +162,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				77CA5528208EB6BD00E5A4F8 /* main.cpp in Sources */,
+				77CA555C208EB8E400E5A4F8 /* Event.cpp in Sources */,
+				77CA5560208EB8E400E5A4F8 /* Simulation.cpp in Sources */,
+				77CA555F208EB8E400E5A4F8 /* Buffer.cpp in Sources */,
+				77CA555D208EB8E400E5A4F8 /* Process.cpp in Sources */,
+				77CA555E208EB8E400E5A4F8 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,6 +287,8 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = VKT6MDX254;
+				HEADER_SEARCH_PATHS = /usr/local/Cellar/libxlsxwriter/0.7.6/include;
+				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/libxlsxwriter/0.7.6/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -248,6 +298,8 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = VKT6MDX254;
+				HEADER_SEARCH_PATHS = /usr/local/Cellar/libxlsxwriter/0.7.6/include;
+				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/libxlsxwriter/0.7.6/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

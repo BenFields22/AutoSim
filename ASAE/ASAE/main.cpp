@@ -39,7 +39,7 @@ int indexOfClosingBracket(std::string line){
 std::vector<processInfo> getModelDefinition(){
   std::vector<processInfo> model;
   std::fstream myFile;
-  myFile.open("./AutoSim/model.txt");
+  myFile.open("./ASAE/model.txt");
   if(!myFile.is_open()){
     throw std::runtime_error("ERROR: failed to open file!");
   }
