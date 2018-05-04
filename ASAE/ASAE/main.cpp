@@ -98,7 +98,7 @@ int main(int argc, const char * argv[]) {
     mySim.constructModel(modelDef);
     mySim.printModel();
     mySim.init();
-   mySim.run(10,NO_VERBOSE);
+    mySim.run(50,NO_VERBOSE);
     
   } catch (const std::runtime_error& e) {
     std::cerr << e.what() << std::endl;

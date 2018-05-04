@@ -13,6 +13,11 @@
 //Description:constructor to create the simulation object
 Simulation::Simulation(){
   simTime = 0.0;
+  startFile.open("starts.txt", std::ios::out);
+  finishFile.open("Finish.txt", std::ios::out);
+  if(!startFile.is_open()||!finishFile.is_open()){
+    throw std::runtime_error("ERROR: Could not open Start and Finish log files!");
+  }
   jobsComplete = 0;
   jobsInSystem = 0;
   finished = 0;
@@ -24,14 +29,19 @@ Simulation::Simulation(){
   worksheet = workbook_add_worksheet(workbook, NULL);
   worksheet_write_string(worksheet, 0, 0,"JobID Start", NULL);
   worksheet_write_string(worksheet, 0, 1,"StartTime", NULL);
-  worksheet_write_string(worksheet, 0, 2,"Resource", NULL);
+  worksheet_write_string(worksheet, 0, 2,"JobsInSystem", NULL);
+  startFile<<"JobID Start,StartTime,Resource,JobsInSystem\n";
   worksheet_write_string(worksheet, 0, 4,"JobID END", NULL);
   worksheet_write_string(worksheet, 0, 5,"ExitTime", NULL);
+  worksheet_write_string(worksheet, 0, 6,"JobsInSystem", NULL);
+  finishFile<<"JobID END,ExitTime,JobsInSystem\n";
 }
 
 //Description:destructor to save and close excel workbook
 Simulation::~Simulation(){
   workbook_close(workbook);
+  startFile.close();
+  finishFile.close();
   std::cout<<"Terminating simulation\n";
 }
 
@@ -66,13 +76,12 @@ int Simulation::constructModel(std::vector<processInfo> &processes){
 void Simulation::init(){
   for (int i = 0; i< numProcesses; ++i) {
     if (simProcesses[i].getProcessType() == FRONT) {
-      std::string id = "(" + simProcesses[i].getJobNum();
+      std::string id = "[" + simProcesses[i].getJobNum();
       id.append(":");
       id.append(std::to_string(i));
-      id.append(")");
+      id.append("-(x)]");
       Event E(i,id,START,simTime);
       eventQueue.push(E);
-      jobsInSystem++;
     }
     else{
       //schedule pull to start cycle
@@ -104,6 +113,26 @@ int Simulation::getFeedBufferState(Process proc){
   }
   return state;
 }
+
+//Description: recursive helper function to determine how many components are leaving system
+int Simulation::getNumberOfEnterPoints(int processID){
+  if(simProcesses[processID].getProcessType()==FRONT){
+    return 1;
+  }
+  int num = 0;
+  for(int i = 0;i<simProcesses[processID].getNumUpStreamDependencies();++i){
+    int parent = simProcesses[processID].upStreamDependencies[i].processID;
+    num = num + getNumberOfEnterPoints(parent);
+  }
+  return num;
+}
+
+//Description: return the number of components the part is composed of
+int Simulation::getNumComponents(int current){
+  //need to determine how many components are in the current job
+  return getNumberOfEnterPoints(current);
+}
+
 
 //Description:process the event and then create the info for the next event to be scheduled
 nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentProcess){
@@ -182,12 +211,12 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
         cid.append(E.getJobID());
       }
       cid.append(")");
-      std::string id = "(" + simProcesses[currentProcess].getJobNum();
+      std::string id = "[" + simProcesses[currentProcess].getJobNum();
       id.append(":");
       id.append(std::to_string(currentProcess));
       id.append("-");
       id.append(cid);
-      id.append(")");
+      id.append("]");
       
       info.eventType = START;
       info.jobID = id;
@@ -218,14 +247,13 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       simProcesses[currentProcess].placeEventInBuffer(currentEvent,BuffertoPush);
       if (simProcesses[currentProcess].getProcessType()==FRONT) {
         //schedule a start
-        jobsInSystem++;
         info.eventType = START;
         info.NextProcess = currentProcess;
         info.nextTime = simTime;
-        std::string id = "(" + simProcesses[currentProcess].getJobNum();
+        std::string id = "[" + simProcesses[currentProcess].getJobNum();
         id.append(":");
         id.append(std::to_string(currentProcess));
-        id.append(")");
+        id.append("-(x)]");
         info.jobID = id;
         info.triggerEventType = PUSH_BUFFER;
         info.previousBuffer = -1;
@@ -251,10 +279,16 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
     }
   }
   else if(currentEvent.getEventType() == START){
+    if(simProcesses[currentProcess].getProcessType()==FRONT){
+      jobsInSystem++;
+    }
     //schedule finish event
     worksheet_write_string(worksheet, startRecordRow, 0,jid.c_str(), NULL);
     worksheet_write_string(worksheet, startRecordRow, 1,std::to_string(currentEvent.getProcessTime()).c_str(), NULL);
-    worksheet_write_string(worksheet, startRecordRow, 2,resource.c_str(), NULL);
+    worksheet_write_string(worksheet, startRecordRow, 2,std::to_string(jobsInSystem).c_str(), NULL);
+    startFile<<jid.c_str()<<","
+              <<std::to_string(currentEvent.getProcessTime()).c_str()<<","
+              <<std::to_string(jobsInSystem).c_str()<<"\n";
     startRecordRow++;
     
     info.eventType = FINISH;
@@ -269,11 +303,17 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
     //try to push onto buffer or wait or nothing if terminal
     worksheet_write_string(worksheet, FinishRecordRow, 4,jid.c_str(), NULL);
     worksheet_write_string(worksheet, FinishRecordRow, 5,std::to_string(currentEvent.getProcessTime()).c_str(), NULL);
-    FinishRecordRow++;
+    finishFile<<jid.c_str()<<","
+    <<std::to_string(currentEvent.getProcessTime()).c_str()<<",";
+    
     simProcesses[currentProcess].AddOneJob();
     if (simProcesses[currentProcess].getProcessType()==TERMINAL) {
+      int numComponents = getNumComponents(currentProcess);
+      //std::cout<<"Count of entrys is "<<numComponents<<"\n";
+      jobsInSystem = jobsInSystem-numComponents;
       jobsComplete++;
-      jobsInSystem--;
+      std::cout<<"\tJobs Complete: "<<jobsComplete<<"\n";
+      std::cout<<"\tJobs in System: "<<jobsInSystem<<"\n";
       //check if at end of line if so then just assign -1 and return
       //schedule a pull
       info.eventType = PULL_BUFFER;
@@ -290,9 +330,14 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.NextProcess = currentProcess;
       info.nextTime = simTime;
       info.triggerEventType = FINISH;
-      info.previousBuffer = -1;
+      info.previousBuffer = BuffertoPush;
     }
+    //write how many jobs are in the system
+    worksheet_write_string(worksheet, FinishRecordRow, 6,std::to_string(jobsInSystem).c_str(), NULL);
+    finishFile<<std::to_string(jobsInSystem).c_str()<<"\n";
+    FinishRecordRow++;
   }
+  
   //return -1 -1 if no event is to be scheduled
   return info;
 }

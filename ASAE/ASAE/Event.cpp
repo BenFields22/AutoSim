@@ -43,6 +43,7 @@ void Event::printEvent(){
   std::cout<<"********Printing Event*********\n";
   std::cout<<"PID: "<<processID<<"\n";
   std::cout<<"JOB_ID: "<<jobID<<"\n";
+  std::cout<<"PREVIOUS_BUFFER: "<<previousBuffer<<"\n";
   if (eventType == PUSH_BUFFER) {
     std::cout<<"EventType: PUSH_BUFFER \n";
   }

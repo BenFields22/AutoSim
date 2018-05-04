@@ -13,15 +13,19 @@
 #include <stdio.h>
 #include <queue>
 #include <vector>
+#include <algorithm>
 #include "Event.hpp"
 #include "Process.hpp"
 #include "xlsxwriter.h"
 #include <iostream>
+#include <fstream>
 
 //Description: main class that runs the simulation
 class Simulation{
 private:
   int debug;
+  std::fstream startFile;
+  std::fstream finishFile;
   int finished;
   int jobsComplete;
   int jobsInSystem;
@@ -46,6 +50,8 @@ public:
   void processNextEvent();
   nextEventInfo processCurrentEvent(Event current, int Process);
   void checkIfFinished(int);
+  int getNumComponents(int);
+  int getNumberOfEnterPoints(int processID);
 };
 
 #endif /* Simulation_hpp */

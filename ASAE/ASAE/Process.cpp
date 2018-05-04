@@ -146,7 +146,7 @@ struct greater_than_key
 };
 
 int Process::getBufferIndexToPush(){
-  std::cout<<"Choosing buffer to push\n";
+  //std::cout<<"Choosing buffer to push\n";
   int numdep = (int)downStreamDependencies.size();
   std::vector<selectionChance> options;
   for(int i = 0;i<numdep;i++){
@@ -156,16 +156,16 @@ int Process::getBufferIndexToPush(){
     options.push_back(option);
   }
   std::sort(options.begin(), options.end(),greater_than_key());
-  std::cout<<"Sorted percentages: ";
+  /*std::cout<<"Sorted percentages: ";
   for(int i = 0; i<numdep;i++){
     std::cout<<"("<<options[i].percent<<","<<options[i].index<<")|";
   }
-  std::cout<<"\n";
+  std::cout<<"\n";*/
   
   int ans = 0;
   int v2 = rand() % 100 + 1;
   float percentR = (float)v2/100.0;
-  std::cout<<"Rand percentage: "<<percentR<<"\n";
+  //std::cout<<"Rand percentage: "<<percentR<<"\n";
   float totalPercentage = 0.0;
   for(int i = 0;i<numdep;i++){
     totalPercentage = totalPercentage+options[i].percent;
@@ -185,7 +185,7 @@ int Process::getBufferIndexToPush(){
       }
     }
   }
-  std::cout<<"Selected index "<<ans<<" with probability of "<<options[ans].percent<<"\n";
+  //std::cout<<"Selected index "<<ans<<" with probability of "<<options[ans].percent<<"\n";
   return ans;
 }
 

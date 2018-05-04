@@ -1,24 +1,24 @@
 <MODEL>
-<3>			                #Number of processes
+<3>			#Number of processes   
 <PROCESS-0>		
 <T:1.0:2.0:3.0>         #Process time distribution 
 <0>                     #Position in line (0-start, 1-middle, 2-end)  
-<1,2(1.00)5>   		      #Down Stream connections <number, id(probability)buffer capacity, ...>
+<1,1(1.00)5>   		#Down Stream connections <number, id(probability)buffer capacity, ...>
 <0>                     #upstream connections <number, (process number, buffer slot), ...>
 </PROCESS-0>
 
 <PROCESS-1>
-<T:1.0:2.0:3.0>
-<0>
+<T:5.0:6.0:7.0>           
+<1>                       
 <1,2(1.00)5>              
-<0>
+<1,(0,0)>                       
 </PROCESS-1>
 
 <PROCESS-2>
-<T:5.0:6.0:7.0>
+<T:1.0:2.0:3.0>           
 <2>                       
 <0>               
-<2,(1,0),(0,0)>
+<1,(1,0)>          
 </PROCESS-2>
 </MODEL>
 
