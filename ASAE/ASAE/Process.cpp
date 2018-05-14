@@ -32,8 +32,14 @@ int Process::getProcessType(){
 //Description:prints the parameters of the current process
 void Process::printProcessInfo(){
   std::cout<<"\tProcess ID: "<<this->processID<<"\n";
-  std::cout<<"\tDist Type: "<<this->distType<<"\n";
-  std::cout<<"\tPos Type: "<<this->processType<<"\n";
+  if(this->distType == TRIANGULAR)std::cout<<"\tDist Type: TRIANGULAR\n";
+  else if(this->distType == NORMAL)std::cout<<"\tDist Type: NORMAL\n";
+  else if(this->distType == UNIFORM)std::cout<<"\tDist Type: UNIFORM\n";
+  
+  if(this->processType == FRONT)std::cout<<"\tPos Type: FRONT\n";
+  else if(this->processType == TERMINAL)std::cout<<"\tPos Type: TERMINAL\n";
+  else std::cout<<"\tPos Type: MIDDLE\n";
+  
   std::cout<<"\tUpstream Dependencies: "<<this->upStreamDependencies.size()<<"\n";
   for(int i = 0;i<this->upStreamDependencies.size();++i){
     std::cout<<"\t\tProcessID: "<<upStreamDependencies[i].processID<<"\n";
@@ -49,9 +55,9 @@ void Process::printProcessInfo(){
 
 //Description:create the dependencies that will be upstream from a process. limited to 0-9
 void Process::setUpstreamDependencies(std::string line){
-  std::cout<<"\tSetting up upstream dependencies with string "<<line<<"\n";
+  //std::cout<<"\tSetting up upstream dependencies with string "<<line<<"\n";
   int num = std::atoi(line.substr(0,1).c_str());
-  std::cout<<"There are "<<num<<" upstream dependencies\n";
+  //std::cout<<"There are "<<num<<" upstream dependencies\n";
   int start = 3;
   for(int i = 0;i<num;i++){
     //create each dependency
@@ -65,9 +71,9 @@ void Process::setUpstreamDependencies(std::string line){
 
 //Description:create the downstream dependencies to control flow. limited to 0-9
 void Process::setDownstreamDependencies(std::string line){
-  std::cout<<"\tSetting up downstream dependencies with string "<<line<<"\n";
+  //std::cout<<"\tSetting up downstream dependencies with string "<<line<<"\n";
   int num = std::atoi(line.substr(0,1).c_str());
-  std::cout<<"There are "<<num<<" downstream dependencies\n";
+  //std::cout<<"There are "<<num<<" downstream dependencies\n";
   int start = 2;
   float total = 0.0;
   for(int i = 0;i<num;i++){
@@ -127,12 +133,12 @@ float Process::getProcessingTimeFromDist(){
 //Description:set the type of process to indicate position in line
 void Process::setProcessType(int type){
   this->processType = type;
-  std::cout<<"\tSetting process type to "<<type<<"\n";
+  //std::cout<<"\tSetting process type to "<<type<<"\n";
 }
 
 //Description:standard setter for buffer capacity
 void Process::setBufferCapacity(int val,int ind){
-  std::cout<<"\tSetting buffer capacity of "<<val<<"\n";
+  //std::cout<<"\tSetting buffer capacity of "<<val<<"\n";
   this->process_Buffers[ind].capacity = val;
 }
 
@@ -229,7 +235,7 @@ void Process::setProcessParameters(std::string info){
   if (this->distType == TRIANGULAR) {
     //setParameters in process for triangular
     info.append(">");
-    std::cout<<"Setting up triangular with string "<<info<< "\n";
+    //std::cout<<"Setting up triangular with string "<<info<< "\n";
     int done = 0;
     int index = 3;
     int front = 2;
@@ -239,14 +245,14 @@ void Process::setProcessParameters(std::string info){
       if(info[index]=='>'){
         done =1;
         std::string max = info.substr(front,length);
-        std::cout<<"\tMax:"<<max<<"\n";
+        //std::cout<<"\tMax:"<<max<<"\n";
         upper = atof(max.c_str());
         continue;
       }
       if(info[index]==':'){
         if(num ==1){
           std::string min = info.substr(front,length);
-          std::cout<<"\tMinimum:"<<min<<"\n";
+          //std::cout<<"\tMinimum:"<<min<<"\n";
           minimum = atof(min.c_str());
           num++;
           length = 0;
@@ -255,7 +261,7 @@ void Process::setProcessParameters(std::string info){
         }
         else if(num ==2){
           std::string avg = info.substr(front,length);
-          std::cout<<"\tAverage:"<<avg<<"\n";
+          //std::cout<<"\tAverage:"<<avg<<"\n";
           average = atof(avg.c_str());
           num++;
           length = 0;

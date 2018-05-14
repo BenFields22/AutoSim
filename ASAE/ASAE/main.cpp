@@ -93,12 +93,12 @@ void printModelDef(std::vector<processInfo> model){
 int main(int argc, const char * argv[]) {
   try {
     std::vector<processInfo> modelDef = getModelDefinition();
-    printModelDef(modelDef);
+    //printModelDef(modelDef);
     Simulation mySim;
     mySim.constructModel(modelDef);
     mySim.printModel();
     mySim.init();
-    mySim.run(50,NO_VERBOSE);
+    mySim.run(10,NO_VERBOSE);
     
   } catch (const std::runtime_error& e) {
     std::cerr << e.what() << std::endl;

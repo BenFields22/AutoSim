@@ -5,7 +5,7 @@
 //  Created by Benjamin G Fields on 4/2/18.
 //  Copyright © 2018 Benjamin G Fields. All rights reserved.
 //
-//  Description: implementatin of the simulatin class
+//  Description: implementation of the simulation class
 
 #include "Simulation.hpp"
 
@@ -52,15 +52,15 @@ int Simulation::constructModel(std::vector<processInfo> &processes){
   simProcesses = new Process[numProcesses];
   for (int i = 0; i<numProcesses; ++i) {
     if(processes[i].processTime[0] == 'T'){
-      std::cout<<"Process "<<i<< " is Triangular \n";
+      if(this->debug)std::cout<<"Process "<<i<< " is Triangular \n";
       simProcesses[i].setDistType(TRIANGULAR);
     }
     else if(processes[i].processTime[0] == 'N'){
-      std::cout<<"Process "<<i<< " is Normal \n";
+      if(this->debug)std::cout<<"Process "<<i<< " is Normal \n";
       simProcesses[i].setDistType(NORMAL);
     }
     else if(processes[i].processTime[0] == 'U'){
-      std::cout<<"Process "<<i<< " is Uniform \n";
+      if(this->debug)std::cout<<"Process "<<i<< " is Uniform \n";
       simProcesses[i].setDistType(UNIFORM);
     }
     simProcesses[i].setProcessParameters(processes[i].processTime);
