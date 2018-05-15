@@ -9,12 +9,12 @@
 
 #include "Simulation.hpp"
 
-
 //Description:constructor to create the simulation object
 Simulation::Simulation(){
   simTime = 0.0;
   startFile.open("starts.txt", std::ios::out);
   finishFile.open("Finish.txt", std::ios::out);
+  resultsFile.open("Results.txt",std::ios::out);
   if(!startFile.is_open()||!finishFile.is_open()){
     throw std::runtime_error("ERROR: Could not open Start and Finish log files!");
   }
@@ -24,7 +24,7 @@ Simulation::Simulation(){
   createJobID = 1;
   startRecordRow = 1;
   FinishRecordRow = 1;
-  timeStep = 0.0002;
+  timeStep = 0.001;
   workbook  = workbook_new("EventLog.xlsx");
   worksheet = workbook_add_worksheet(workbook, NULL);
   worksheet_write_string(worksheet, 0, 0,"JobID Start", NULL);
@@ -393,3 +393,5 @@ void Simulation::run(int numJobs, int verbose){
   }
   return;
 }
+
+

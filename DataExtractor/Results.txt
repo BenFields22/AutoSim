@@ -1,10 +1,10 @@
-Results for Mon May 14 15:34:12 2018
-
-MODEL: TODO
+Results for Tue May 15 14:12:42 2018
 
 Number of Start Records: 163
 Number of Finish Records: 163
 Complete Jobs: 50
+Simulation runtime: 301.451
+Average time per job: 6.02903
 Number of Processes: 3
 
 Transition State Matrix
@@ -12,3 +12,17 @@ PID   0   1   2
   0|  0|  0| 50|
   1|  0|  0| 50|
   2|  0|  0|  0|
+
+Total Transition Times Matrix
+      PID         0         1         2
+        0|    0.000|    0.000| 1541.652|
+        1|    0.000|    0.000| 1541.540|
+        2|    0.000|    0.000|    0.000|
+
+Transition Times Matrix
+      PID         0         1         2
+        0|    0.000|    0.000|   30.833|
+        1|    0.000|    0.000|   30.831|
+        2|    0.000|    0.000|    0.000|
+
+Max Number of Components in System: 14

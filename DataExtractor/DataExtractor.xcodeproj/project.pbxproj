@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		77011621209CD35B003F0986 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77011620209CD35B003F0986 /* main.cpp */; };
+		77F9107020AB7C7D00926299 /* DataCrawler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77F9106E20AB7C7D00926299 /* DataCrawler.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,8 @@
 /* Begin PBXFileReference section */
 		7701161D209CD35B003F0986 /* DataExtractor */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DataExtractor; sourceTree = BUILT_PRODUCTS_DIR; };
 		77011620209CD35B003F0986 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		77F9106E20AB7C7D00926299 /* DataCrawler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DataCrawler.cpp; sourceTree = "<group>"; };
+		77F9106F20AB7C7D00926299 /* DataCrawler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataCrawler.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +61,8 @@
 			isa = PBXGroup;
 			children = (
 				77011620209CD35B003F0986 /* main.cpp */,
+				77F9106E20AB7C7D00926299 /* DataCrawler.cpp */,
+				77F9106F20AB7C7D00926299 /* DataCrawler.hpp */,
 			);
 			path = DataExtractor;
 			sourceTree = "<group>";
@@ -118,6 +123,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				77F9107020AB7C7D00926299 /* DataCrawler.cpp in Sources */,
 				77011621209CD35B003F0986 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -82,7 +82,7 @@ void Process::setDownstreamDependencies(std::string line){
     conn.processID = std::atoi(line.substr(start,1).c_str());
     conn.percentage = std::atof(line.substr(start+2,4).c_str());
     total = total + conn.percentage;
-    conn.capacity = std::atoi(line.substr(start+7,1).c_str());
+    conn.capacity = std::atoi(line.substr(start+7,2).c_str());
     downStreamDependencies.push_back(conn);
     Buffer buff;
     buff.capacity = conn.capacity;

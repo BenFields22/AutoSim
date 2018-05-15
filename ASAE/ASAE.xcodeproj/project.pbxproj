@@ -13,6 +13,7 @@
 		77CA555E208EB8E400E5A4F8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CA5556208EB8E300E5A4F8 /* main.cpp */; };
 		77CA555F208EB8E400E5A4F8 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CA5557208EB8E300E5A4F8 /* Buffer.cpp */; };
 		77CA5560208EB8E400E5A4F8 /* Simulation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77CA5558208EB8E300E5A4F8 /* Simulation.cpp */; };
+		77F9106D20AB744100926299 /* DataCrawler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77F9106B20AB744100926299 /* DataCrawler.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -49,6 +50,8 @@
 		77CA5559208EB8E300E5A4F8 /* Simulation.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Simulation.hpp; sourceTree = "<group>"; };
 		77CA555A208EB8E300E5A4F8 /* Event.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Event.hpp; sourceTree = "<group>"; };
 		77CA555B208EB8E400E5A4F8 /* Process.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Process.hpp; sourceTree = "<group>"; };
+		77F9106B20AB744100926299 /* DataCrawler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DataCrawler.cpp; sourceTree = "<group>"; };
+		77F9106C20AB744100926299 /* DataCrawler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DataCrawler.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +96,8 @@
 				77CA555B208EB8E400E5A4F8 /* Process.hpp */,
 				77CA5558208EB8E300E5A4F8 /* Simulation.cpp */,
 				77CA5559208EB8E300E5A4F8 /* Simulation.hpp */,
+				77F9106B20AB744100926299 /* DataCrawler.cpp */,
+				77F9106C20AB744100926299 /* DataCrawler.hpp */,
 			);
 			path = ASAE;
 			sourceTree = "<group>";
@@ -164,6 +169,7 @@
 			files = (
 				77CA555C208EB8E400E5A4F8 /* Event.cpp in Sources */,
 				77CA5560208EB8E400E5A4F8 /* Simulation.cpp in Sources */,
+				77F9106D20AB744100926299 /* DataCrawler.cpp in Sources */,
 				77CA555F208EB8E400E5A4F8 /* Buffer.cpp in Sources */,
 				77CA555D208EB8E400E5A4F8 /* Process.cpp in Sources */,
 				77CA555E208EB8E400E5A4F8 /* main.cpp in Sources */,

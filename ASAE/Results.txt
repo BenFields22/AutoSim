@@ -1,0 +1,28 @@
+Results for Tue May 15 14:14:12 2018
+
+Number of Start Records: 39
+Number of Finish Records: 37
+Complete Jobs: 10
+Simulation runtime: 92.0393
+Average time per job: 9.20393
+Number of Processes: 3
+
+Transition State Matrix
+PID   0   1   2 
+  0|  0| 10|  0|
+  1|  0|  0| 10|
+  2|  0|  0|  0|
+
+Total Transition Times Matrix
+      PID         0         1         2
+        0|    0.000|  354.503|    0.000|
+        1|    0.000|    0.000|    0.006|
+        2|    0.000|    0.000|    0.000|
+
+Transition Times Matrix
+      PID         0         1         2
+        0|    0.000|   35.450|    0.000|
+        1|    0.000|    0.000|    0.001|
+        2|    0.000|    0.000|    0.000|
+
+Max Number of Components in System: 8

@@ -19,6 +19,9 @@
 #include "xlsxwriter.h"
 #include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <unordered_set>
+#include <sstream>
 
 //Description: main class that runs the simulation
 class Simulation{
@@ -26,6 +29,7 @@ private:
   int debug;
   std::fstream startFile;
   std::fstream finishFile;
+  std::fstream resultsFile;
   int finished;
   int jobsComplete;
   int jobsInSystem;

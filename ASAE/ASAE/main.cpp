@@ -8,10 +8,11 @@
 //  Description: Simulation framework that creates a simulation from a text based definition.
 //  the program parses the file and creates the model. The simulation is then run producing
 //  an event log of the trial run.
-//  Next Step: Add normal distributions. Add rework.
+//  Next Step: Add extraction of buffer data. Add normal distributions and constant time. Add rework.
 
 #include <iostream>
 #include "Simulation.hpp"
+#include "DataCrawler.hpp"
 #include <fstream>
 #include <stdexcept>
 #include <cctype>
@@ -20,23 +21,44 @@ enum log{
   NO_VERBOSE,
   VERBOSE
 };
+//***********************************************************
+//Function prototypes
+int indexOfClosingBracket(std::string line);
+std::vector<processInfo> getModelDefinition( int* numJobs);
+void printModelDef(std::vector<processInfo> model);
+//***********************************************************
 
-//Description:utility function used when parsing the model file to find the end of the line
-int indexOfClosingBracket(std::string line){
-  int ending = 1;
-  int length = 0;
-  while(ending < line.length()){
-    if(line[ending] == '>'){
-      break;
-    }
-    length++;
-    ending++;
+//Description: Main entry point in the program
+int main(int argc, const char * argv[]) {
+  //try block to encapsulate the simulation logic
+  try {
+    int numJobs;
+    std::vector<processInfo> modelDef = getModelDefinition(&numJobs);
+    Simulation mySim;
+    mySim.constructModel(modelDef);
+    mySim.printModel();
+    mySim.init();
+    std::cout<<"Running Simulation with "<<numJobs<<" Jobs\n";
+    mySim.run(numJobs,NO_VERBOSE);
+  } catch (const std::runtime_error& e) {
+    std::cerr << e.what() << std::endl;
+    return EXIT_FAILURE;
   }
-  return length;
+  
+  //try block to encapsulate the dataCrawler logic
+  try{
+    //create a dataCrawler
+    DataCrawler myCrawler;
+    myCrawler.run();
+  }catch (const std::runtime_error& e) {
+    std::cerr << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
+  return 0;
 }
 
 //Description:parse the text file containing the model definition
-std::vector<processInfo> getModelDefinition(){
+std::vector<processInfo> getModelDefinition( int* numJobs){
   std::vector<processInfo> model;
   std::fstream myFile;
   myFile.open("./ASAE/model.txt");
@@ -50,6 +72,10 @@ std::vector<processInfo> getModelDefinition(){
   std::getline(myFile,line);
   int close = indexOfClosingBracket(line);
   std::string val = line.substr(1,close);
+  *numJobs = atoi(val.c_str());
+  std::getline(myFile,line);
+  close = indexOfClosingBracket(line);
+  val = line.substr(1,close);
   int numProcesses = atoi(val.c_str());
   std::cout<<"Number of processes is "<<numProcesses<<std::endl;
   for(int i = 0;i<numProcesses;++i){
@@ -79,6 +105,20 @@ std::vector<processInfo> getModelDefinition(){
   return model;
 }
 
+//Description:utility function used when parsing the model file to find the end of the line
+int indexOfClosingBracket(std::string line){
+  int ending = 1;
+  int length = 0;
+  while(ending < line.length()){
+    if(line[ending] == '>'){
+      break;
+    }
+    length++;
+    ending++;
+  }
+  return length;
+}
+
 //Description:prints the model that is to be created from model file
 void printModelDef(std::vector<processInfo> model){
   for (int i = 0; i<model.size(); ++i) {
@@ -88,21 +128,4 @@ void printModelDef(std::vector<processInfo> model){
     std::cout<<"\tDownstream connections: "<<model[i].downStream<<"\n";
     std::cout<<"\tUpstream connections: "<<model[i].upStream<<"\n";
   }
-}
-
-int main(int argc, const char * argv[]) {
-  try {
-    std::vector<processInfo> modelDef = getModelDefinition();
-    //printModelDef(modelDef);
-    Simulation mySim;
-    mySim.constructModel(modelDef);
-    mySim.printModel();
-    mySim.init();
-    mySim.run(10,NO_VERBOSE);
-    
-  } catch (const std::runtime_error& e) {
-    std::cerr << e.what() << std::endl;
-    return EXIT_FAILURE;
-  } 
-  return 0;
 }
