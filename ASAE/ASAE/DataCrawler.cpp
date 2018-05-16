@@ -51,6 +51,7 @@ DataCrawler::~DataCrawler(){
 
 //Description: Main runner to extract all process information from event data
 void DataCrawler::run(){
+  std::cout<<"\n\n*********Starting DataCrawler**********\n";
   std::cout<<"Number of Starts: "<<myStarts.size()<<"\n";
   std::cout<<"Number of Finishes: "<<myFinishs.size()<<"\n";
   
