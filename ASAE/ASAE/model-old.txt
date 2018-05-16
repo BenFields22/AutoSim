@@ -1,0 +1,46 @@
+<MODEL>
+<50>                   #number of jobs to run
+<6>                       //number of processes
+<PROCESS-0>
+<T:1.0:2.0:3.0>           //process time
+<0>                       //pos in system 0-initial 1-middle 2-end
+<2,2(0.70)15,3(0.30)05>     //downstream connections <num dep,proc num(percentage)buff cap,...>
+<0>                       //upstream connections <num,(proc num, buffer pos),...>
+</PROCESS-0>
+
+<PROCESS-1>
+<T:1.0:2.0:3.0>           //process time
+<0>                       //pos in system 0-initial 1-middle 2-end
+<1,2(1.00)05>              //downstream connections <num dep,proc num(percentage)buff cap,...>
+<0>                       //upstream connections <num,(proc num, buffer pos),...>
+</PROCESS-1>
+
+<PROCESS-2>
+<T:5.0:8.0:10.0>           //process time
+<1>                       //pos in system 0-initial 1-middle 2-end
+<1,4(1.00)05>              //downstream connections <num dep,proc num(percentage)buff cap,...>
+<2,(0,0),(1,0)>           //upstream connections <num,(proc num, buffer pos),...>
+</PROCESS-2>
+
+<PROCESS-3>
+<T:1.0:2.0:3.0>           //process time
+<1>                       //pos in system 0-initial 1-middle 2-end
+<1,4(1.00)05>              //downstream connections <num dep,proc num(percentage)buff cap,...>
+<1,(0,1)>                 //upstream connections <num,(proc num, buffer pos),...>
+</PROCESS-3>
+
+<PROCESS-4>
+<T:1.0:2.0:3.0>           //process time
+<2>                       //pos in system 0-initial 1-middle 2-end
+<0>                       //downstream connections <num dep,proc num(percentage)buff cap,...>
+<1,(3,0)>           //upstream connections <num,(proc num, buffer pos),...>
+</PROCESS-4>
+
+<PROCESS-5>
+<T:1.0:2.0:3.0>           //process time
+<2>                       //pos in system 0-initial 1-middle 2-end
+<0>                       //downstream connections <num dep,proc num(percentage)buff cap,...>
+<1,(2,0)>           //upstream connections <num,(proc num, buffer pos),...>
+</PROCESS-5>
+</MODEL>
+

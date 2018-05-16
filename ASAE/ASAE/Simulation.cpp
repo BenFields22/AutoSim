@@ -153,13 +153,19 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
     
   //select the buffer to place into if need to push
   int BuffertoPush;
-  if(simProcesses[currentProcess].getNumDownStreamDependencies()<2){
-    BuffertoPush = 0;
-    currentEvent.previousBuffer = 0;
+  if(currentEvent.previousBuffer != -1)
+  {
+    BuffertoPush = currentEvent.previousBuffer;
   }
   else{
-    BuffertoPush = simProcesses[currentProcess].getBufferIndexToPush();
-    currentEvent.previousBuffer = BuffertoPush;
+    if(simProcesses[currentProcess].getNumDownStreamDependencies()<2){
+      BuffertoPush = 0;
+      currentEvent.previousBuffer = 0;
+    }
+    else{
+      BuffertoPush = simProcesses[currentProcess].getBufferIndexToPush();
+      currentEvent.previousBuffer = BuffertoPush;
+    }
   }
   
   int currentBufferState;
@@ -224,8 +230,8 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.nextTime = simTime + timeStep;
       info.previousBuffer = -1;
       info.timeAtProcess = currentEvent.getTimesAtCurrentState()+1;
-      if(info.timeAtProcess>1000000){
-        std::string message = "DEADLOCK: Stuck at process "+std::to_string(currentProcess)+" trying to pull!";
+      if(info.timeAtProcess>100000){
+        std::string message = "DEADLOCK WARNING: Stuck at process "+std::to_string(currentProcess)+" trying to pull!";
         throw std::runtime_error(message);
       }
     }
@@ -274,8 +280,8 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.triggerEventType = PUSH_BUFFER;
       info.previousBuffer = BuffertoPush;
       info.timeAtProcess = currentEvent.getTimesAtCurrentState()+1;
-      if(info.timeAtProcess>1000000){
-        std::string message = "DEADLOCK: Stuck at process "+std::to_string(currentProcess)+" trying to push!";
+      if(info.timeAtProcess>100000){
+        std::string message = "DEADLOCK WARNING: Stuck at process "+std::to_string(currentProcess)+" trying to push!";
         throw std::runtime_error(message);
       }
     }

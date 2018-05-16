@@ -18,6 +18,7 @@
 #include <sstream>
 #include <chrono>
 #include <iomanip>
+#include <algorithm>
 
 typedef struct{
   std::string jobID;
@@ -55,7 +56,7 @@ public:
   int getPosOfDash(std::string line, int start);
   std::string getDependancy(std::string line);
   std::vector<std::string> getUpConnections(std::string line);
-  int numJobsComplete(std::vector<Finish> &myFin);
+  int numJobsComplete(std::vector<Finish> &myFin,int pid);
   int getNumProcesses(std::vector<Finish> &myFin);
   void printTransitionStateMatrix(int** mat, int size);
   void printTransitionTimeMatrix(float** mat, int size);
@@ -69,6 +70,9 @@ public:
   void getUtilizedBufferCapacity(int** bufMat,int** freqMat,int size);
   void getCapacityForPos(int** buffMat,int source, int destination);
   int getJobNum(std::string line);
+  std::unordered_set<int> getNumberOfTerminalStates();
+  std::vector<int> getProperStartConnections(int downstream,int upstream);
+  int isIdDepend(std::string jid);
   void run();
 };
 

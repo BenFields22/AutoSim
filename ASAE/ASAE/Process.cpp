@@ -90,6 +90,9 @@ void Process::setDownstreamDependencies(std::string line){
     conn.percentage = std::atof(line.substr(start+2,4).c_str());
     total = total + conn.percentage;
     conn.capacity = std::atoi(line.substr(start+7,2).c_str());
+    if(conn.capacity<1||conn.capacity>99){
+      throw std::runtime_error("\nBUFFER CAPACITY ERROR: Cannot have a capacity less than 1 or greater than 99!\n");
+    }
     downStreamDependencies.push_back(conn);
     Buffer buff;
     buff.capacity = conn.capacity;

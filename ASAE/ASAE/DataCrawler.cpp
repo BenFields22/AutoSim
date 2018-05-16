@@ -61,17 +61,28 @@ void DataCrawler::run(){
   std::cout<<"Results for "<<std::ctime(&time)<<"\n";
   
   resultsFile<<"Number of Start Records: "<<myStarts.size()<<"\n";
-  resultsFile<<"Number of Finish Records: "<<myFinishs.size()<<"\n";
-  
-  int complete = numJobsComplete(myFinishs);
-  std::cout<<"Number of complete jobs is "<<complete<<"\n";
-  resultsFile<<"Complete Jobs: "<<complete<<"\n";
+  resultsFile<<"Number of Finish Records: "<<myFinishs.size()<<"\n\n";
   
   float endTime = myFinishs.back().time;
   std::cout<<"Simulation runtime: "<<endTime<<"\n";
   resultsFile<<"Simulation runtime: "<<endTime<<"\n";
-  std::cout<<"Average time per job: "<<endTime/(float)complete<<"\n";
-  resultsFile<<"Average time per job: "<<endTime/(float)complete<<"\n";
+  
+  std::unordered_set<int> numberOfTerminalStates = getNumberOfTerminalStates();
+  std::cout<<"\nThere are/is "<<numberOfTerminalStates.size()<<" Terminal State(s)\n";
+  resultsFile<<"\nThere are/is "<<numberOfTerminalStates.size()<<" Terminal State(s)\n";
+  int totalComplete = 0;
+  for (auto itr = numberOfTerminalStates.begin(); itr != numberOfTerminalStates.end(); ++itr) {
+    int numExit =numJobsComplete(myFinishs,*itr);
+    totalComplete = totalComplete+numExit;
+    std::cout<<"-Number of Jobs Exiting via PID "<<*itr<<": "<<numExit<<"\n";
+    resultsFile<<"-Number of Jobs Exiting via PID "<<*itr<<": "<<numExit<<"\n";
+    std::cout<<"-Average time to produce one job: "<<endTime/(float)numExit<<"\n\n";
+    resultsFile<<"-Average time to produce one job: "<<endTime/(float)numExit<<"\n\n";
+  }
+  std::cout<<"Total Complete Jobs: "<<totalComplete<<"\n";
+  resultsFile<<"Total Complete Jobs: "<<totalComplete<<"\n";
+  std::cout<<"Overall average time per job: "<<endTime/(float)totalComplete<<"\n";
+  resultsFile<<"Overall average time per job: "<<endTime/(float)totalComplete<<"\n";
   
   int maxJIS = getMaxJobsInSystem(myFinishs);
   std::cout<<"Max Number of Components in System: "<<maxJIS<<"\n";
@@ -111,8 +122,8 @@ void DataCrawler::run(){
   resultsFile<<"\nTotal Transition Times Matrix\n";
   printTransitionTimeMatrix(transitionTimeMatrix, numProcesses);
   averageTransitionTimes(transitionTimeMatrix, numProcesses, transitionStateMatrix);
-  std::cout<<"Transition Times averaged\n";
-  resultsFile<<"\nTransition Times Matrix\n";
+  std::cout<<"Average Transition Times averaged\n";
+  resultsFile<<"\nAverage Transition Times Matrix\n";
   printTransitionTimeMatrix(transitionTimeMatrix, numProcesses);
   
   //create the buffer capacity matrix
@@ -131,6 +142,7 @@ void DataCrawler::run(){
   
 }
 
+//Description: Helper function used to parse a jobID and get the job number
 int DataCrawler::getJobNum(std::string line){
   int ans;
   int posOfColon = getPosOfColon(line);
@@ -139,10 +151,70 @@ int DataCrawler::getJobNum(std::string line){
   return ans;
 }
 
+//Description: Helper function to retreive the list of proper jobNumbers related to a downstream node connection
+std::vector<int> DataCrawler::getProperStartConnections(int downstream,int upstream){
+  std::vector<int> ans;
+  for(int i=1;i<(int)myFinishs.size();++i){
+    if(getProcessID(myFinishs[i].jobID)==downstream){
+      //std::cout<<"Found process id "<<downstream<<" in jobid "<<myFinishs[i].jobID<<"\n";
+      std::vector<std::string> depend = getUpConnections(myFinishs[i].jobID);
+      for(int j = 0;j<depend.size();++j){
+        //std::cout<<depend[j]<<"\n";
+        if(depend[j]=="x"){
+          continue;
+        }
+        int pid = getProcessID(depend[j]);
+        if(pid == upstream){
+          int jobNum = getJobNum(depend[j]);
+          ans.push_back(jobNum);
+        }
+      }
+    }
+  }
+  return ans;
+}
+
+int DataCrawler::isIdDepend(std::string jid){
+  int ans = 0;
+  if(getDependancy(jid)=="x"){
+    return -1;
+  }
+  for(int i=1;i<(int)myStarts.size();++i){
+    std::vector<std::string> depend = getUpConnections(myStarts[i].jobID);
+    for(int j = 0; j<(int)depend.size();++j){
+      if(depend[j].compare(jid)==0){
+        ans =1;
+        return ans;
+      }
+    }
+  }
+  return ans;
+}
+
+//Description: Return how many exits to the system there are
+std::unordered_set<int> DataCrawler::getNumberOfTerminalStates(){
+  std::unordered_set<int> ans;
+  //for each finish id determine if it is a dependency
+  for(int i = 1;i<(int)myFinishs.size();++i){
+    int isNotTerminal = isIdDepend(myFinishs[i].jobID);
+    if(isNotTerminal==-1)continue;
+    if(isNotTerminal == 0){
+      int pid = getProcessID(myFinishs[i].jobID);
+      ans.insert(pid);
+    }
+  }
+  return ans;
+}
+
 //Description: For the position check what was the max capacity used for the buffer
 void DataCrawler::getCapacityForPos(int** buffMat,int upstream, int downstream){
   // the source represents the finishs and the destination if the start
   //start with gap to see if there is a utilized buffer
+  std::vector<int> properStartConnections = getProperStartConnections(downstream, upstream);
+  /*std::cout<<"\nProper connections for transition "<<upstream<<"->"<<downstream<<"\n";
+  for(int i = 0;i<(int)properStartConnections.size();++i){
+    std::cout<<properStartConnections[i]<<"\n";
+  }*/
   int startNum = 3;
   int bufferFound = 0;
   int finishNum = 1;
@@ -162,7 +234,7 @@ void DataCrawler::getCapacityForPos(int** buffMat,int upstream, int downstream){
       //if found then set found1 to 0 and break
       int jobNum = getJobNum(myStarts[i].jobID);
       int pid = getProcessID(myStarts[i].jobID);
-      if(jobNum == startNum && pid == upstream){
+      if(jobNum == properStartConnections[startNum-1] && pid == upstream){
         //std::cout<<"Found upstream Start with jobNum "<<jobNum<<" and pid "<<upstream<<"\n";
         found1 = 0;
         lastCheckedStartIndex = i;
@@ -380,18 +452,18 @@ std::vector<Finish> DataCrawler::readInFinishFile(){
 }
 
 //Description: return the number of jobs completed in simulation run from data
-int DataCrawler::numJobsComplete(std::vector<Finish> &myFin){
-  int ans = 0;
-  //std::cout<<"Getting the number of jobs complete with jobID "<<myFin.back().jobID<<"\n";
-  std::string line = myFin.back().jobID;
-  int length = 0;
-  int index = 1;
-  while(line[index] != ':'){
-    length++;
-    index++;
+int DataCrawler::numJobsComplete(std::vector<Finish> &myFin,int pid){
+  int max=0;
+  for(int i=0;i<(int)myFin.size();++i){
+    int Checkpid = getProcessID(myFin[i].jobID);
+    if(Checkpid==pid){
+      int num = getJobNum(myFin[i].jobID);
+      if(num>max){
+        max=num;
+      }
+    }
   }
-  ans = std::atoi(line.substr(1,length).c_str());
-  return ans;
+  return max;
 }
 
 //Description: Return the number of unique processes in the system
