@@ -50,9 +50,9 @@ int Simulation::constructModel(std::vector<processInfo> &processes){
       if(this->debug)std::cout<<"Process "<<i<< " is Normal \n";
       simProcesses[i].setDistType(NORMAL);
     }
-    else if(processes[i].processTime[0] == 'U'){
-      if(this->debug)std::cout<<"Process "<<i<< " is Uniform \n";
-      simProcesses[i].setDistType(UNIFORM);
+    else if(processes[i].processTime[0] == 'C'){
+      if(this->debug)std::cout<<"Process "<<i<< " is Constant \n";
+      simProcesses[i].setDistType(CONSTANT);
     }
     simProcesses[i].setProcessParameters(processes[i].processTime);
     simProcesses[i].setProcessType(processes[i].processPos);
@@ -230,7 +230,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.nextTime = simTime + timeStep;
       info.previousBuffer = -1;
       info.timeAtProcess = currentEvent.getTimesAtCurrentState()+1;
-      if(info.timeAtProcess>100000){
+      if(info.timeAtProcess>1000000){
         std::string message = "DEADLOCK WARNING: Stuck at process "+std::to_string(currentProcess)+" trying to pull!";
         throw std::runtime_error(message);
       }
@@ -280,7 +280,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.triggerEventType = PUSH_BUFFER;
       info.previousBuffer = BuffertoPush;
       info.timeAtProcess = currentEvent.getTimesAtCurrentState()+1;
-      if(info.timeAtProcess>100000){
+      if(info.timeAtProcess>1000000){
         std::string message = "DEADLOCK WARNING: Stuck at process "+std::to_string(currentProcess)+" trying to push!";
         throw std::runtime_error(message);
       }

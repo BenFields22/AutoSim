@@ -15,6 +15,7 @@
 #include "Buffer.hpp"
 #include <string>
 #include <cmath>
+#include <random>
 #include <algorithm>
 
 typedef struct{
@@ -53,13 +54,14 @@ class Process{
 private:
   int jobNum;
   int processID;
-  
-  
   int distType;//defines how the times are generated
   int processType;//where the process is in the line
   float average;
   float minimum;
   float upper;
+  float constant;
+  float normalAverage;
+  float normalStdDev;
 public:
   Process(){
     jobNum = 1;

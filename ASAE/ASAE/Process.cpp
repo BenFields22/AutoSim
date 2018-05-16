@@ -34,7 +34,7 @@ void Process::printProcessInfo(){
   std::cout<<"\tProcess ID: "<<this->processID<<"\n";
   if(this->distType == TRIANGULAR)std::cout<<"\tDist Type: TRIANGULAR\n";
   else if(this->distType == NORMAL)std::cout<<"\tDist Type: NORMAL\n";
-  else if(this->distType == UNIFORM)std::cout<<"\tDist Type: UNIFORM\n";
+  else if(this->distType == CONSTANT)std::cout<<"\tDist Type: CONSTANT\n";
   
   if(this->processType == FRONT)std::cout<<"\tPos Type: FRONT\n";
   else if(this->processType == TERMINAL)std::cout<<"\tPos Type: TERMINAL\n";
@@ -132,10 +132,10 @@ float Process::getProcessingTimeFromDist(){
     return getTrianglarDistribution(minimum, upper, average);
   }
   else if(distType == NORMAL){
-    //TODO
+    //todo
   }
-  else if(distType == UNIFORM){
-    //TODO
+  else if(distType == CONSTANT){
+    return this->constant;
   }
   return 0.0;
 }
@@ -279,10 +279,44 @@ void Process::setProcessParameters(std::string info){
   }
   else if(this->distType==NORMAL){
     //set for normal
-    //TODO
+    info.append(">");
+    //std::cout<<"Setting up Normal with string "<<info<< "\n";
+    int done = 0;
+    int index = 3;
+    int front = 2;
+    int num = 1;
+    int length = 1;
+    while(!done){
+      if(info[index]=='>'){
+        done =1;
+        std::string std = info.substr(front,length);
+        //std::cout<<"Std:"<<std<<"\n";
+        normalStdDev = atof(std.c_str());
+        continue;
+      }
+      if(info[index]==':'){
+        if(num == 1){
+          std::string avg = info.substr(front,length);
+          //std::cout<<"Normal Average: "<<avg<<"\n";
+          normalAverage = std::atof(avg.c_str());
+          num++;
+          length = 0;
+          front = index+1;
+          index++;
+        }
+      }
+      else{
+        length++;
+        index++;
+      }
+    }
   }
-  else if(this->distType==UNIFORM){
-    //set for uniform
-    //TODO
+  else if(this->distType==CONSTANT){
+    //set for constant
+    //setParameters in process for constant
+    //std::cout<<"Setting up constant with string "<<info<< "\n";
+    info.append(">");
+    this->constant = std::atof(info.substr(2,info.length()-2).c_str());
+    //std::cout<<"Setting constant time of "<<this->constant<<"\n";
   }
 }

@@ -8,7 +8,7 @@
 //  Description: Simulation framework that creates a simulation from a text based definition.
 //  the program parses the file and creates the model. The simulation is then run producing
 //  an event log of the trial run.
-//  Next Step: Add extraction of buffer data. Add normal distributions and constant time. Add rework.
+//  Next Step: Add normal distributions. Add rework.
 
 #include <iostream>
 #include "Simulation.hpp"
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <cctype>
+
 
 enum log{
   NO_VERBOSE,

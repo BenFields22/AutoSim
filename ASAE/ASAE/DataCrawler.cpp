@@ -140,6 +140,60 @@ void DataCrawler::run(){
   resultsFile<<"\nMax Utilized Buffer Capacity Matrix\n";
   printTransitionStateMatrix(bufferCap, numProcesses);
   
+  //create average process time array
+  float* procTimes = new float[numProcesses];
+  for(int i = 0;i<numProcesses;++i){
+    procTimes[i]=0.0;
+  }
+  getAverageProcessTimes(procTimes, numProcesses);
+  std::cout<<"\nAverage Process Times\n";
+  resultsFile<<"\nAverage Process Times\n";
+  for(int i = 0;i<numProcesses;++i){
+    std::cout<<std::fixed<<std::setw(8)<<i<<" ";
+    resultsFile<<std::fixed<<std::setw(8)<<i<<" ";
+  }
+  std::cout<<"\n";
+  resultsFile<<"\n";
+  for(int i = 0;i<numProcesses;++i){
+    std::cout<<std::fixed<<std::setw(8)<<procTimes[i]<<"|";
+    resultsFile<<std::fixed<<std::setw(8)<<procTimes[i]<<"|";
+  }
+  std::cout<<"\n";
+  resultsFile<<"\n";
+}
+
+float DataCrawler::findStartTime(std::string id){
+  for(int i=1;i<(int)myStarts.size();++i){
+    if(myStarts[i].jobID.compare(id)==0){
+      return myStarts[i].time;
+    }
+  }
+  return 0.0;
+}
+
+processData DataCrawler::countNumberOfTimesPIDFinishes(int id){
+  processData ans;
+  ans.totaltime = 0.0;
+  ans.sum = 0;
+  for(int i = 1;i<(int)myFinishs.size();++i){
+    std::string jid = myFinishs[i].jobID;
+    if(getProcessID(jid)==id){
+      float start = findStartTime(jid);
+      //std::cout<<"JID "<<jid<<"starttime "<<start<<"\n";
+      float duration = myFinishs[i].time - start;
+      //std::cout<<"Duration of process "<<id<<" using jid "<<jid<<" is "<<duration<<"\n";
+      ans.totaltime+= duration;
+      ans.sum++;
+    }
+  }
+  return ans;
+}
+
+void DataCrawler::getAverageProcessTimes(float*mytimes, int size){
+  for(int i = 0;i<size;++i){
+    processData info = countNumberOfTimesPIDFinishes(i);
+    mytimes[i] = info.totaltime/(float)info.sum;
+  }
 }
 
 //Description: Helper function used to parse a jobID and get the job number

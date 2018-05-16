@@ -38,6 +38,11 @@ typedef struct{
   int Pid;
 }startInfo;
 
+typedef struct {
+  int sum;
+  float totaltime;
+}processData;
+
 class DataCrawler{
 private:
   std::ifstream myStartFile;
@@ -73,6 +78,9 @@ public:
   std::unordered_set<int> getNumberOfTerminalStates();
   std::vector<int> getProperStartConnections(int downstream,int upstream);
   int isIdDepend(std::string jid);
+  void getAverageProcessTimes(float*mytimes, int size);
+  float findStartTime(std::string id);
+  processData countNumberOfTimesPIDFinishes(int id);
   void run();
 };
 
