@@ -45,7 +45,7 @@ private:
   std::vector<Start> myStarts;
   std::vector<Finish> myFinishs;
 public:
-  DataCrawler();
+  DataCrawler(std::string startfileName, std::string finishFileName);
   ~DataCrawler();
   std::vector<Start> readInStartsFile();
   std::vector<Finish> readInFinishFile();

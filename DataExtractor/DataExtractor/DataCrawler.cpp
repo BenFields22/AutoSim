@@ -9,14 +9,14 @@
 #include "DataCrawler.hpp"
 
 //Description: Constructor to open and read files
-DataCrawler::DataCrawler(){
-  myStartFile.open("starts.txt");
+DataCrawler::DataCrawler(std::string startfileName, std::string finishFileName){
+  myStartFile.open(startfileName.c_str());
   if(!myStartFile.is_open()){
     std::cout<<"ERROR: Unable to open start event log\n";
     throw std::runtime_error("ERROR: failed to open starts.txt file!");
   }
   std::cout<<"Successfully opened start file\n";
-  myFinishFile.open("Finish.txt");
+  myFinishFile.open(finishFileName.c_str());
   if(!myFinishFile.is_open()){
     std::cout<<"ERROR: Unable to open finish event log\n";
     throw std::runtime_error("ERROR: failed to open finish.txt file!");

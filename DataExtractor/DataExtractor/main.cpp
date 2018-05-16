@@ -11,7 +11,7 @@
 #include "DataCrawler.hpp"
 
 int main(int argc, char** argv) {
-  DataCrawler myCrawler;
+  DataCrawler myCrawler("starts.txt","Finish.txt");
   myCrawler.run();
   return 0;
 }

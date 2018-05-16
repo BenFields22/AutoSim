@@ -49,7 +49,7 @@ int main(int argc, const char * argv[]) {
   //try block to encapsulate the dataCrawler logic
   try{
     //create a dataCrawler
-    DataCrawler myCrawler;
+    DataCrawler myCrawler("starts.txt","Finish.txt");
     myCrawler.run();
   }catch (const std::runtime_error& e) {
     std::cout<<"\nERROR in data Crawler!\n";
