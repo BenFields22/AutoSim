@@ -16,7 +16,6 @@
 #include <algorithm>
 #include "Event.hpp"
 #include "Process.hpp"
-#include "xlsxwriter.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -36,8 +35,6 @@ private:
   int createJobID;
   float simTime;
   float timeStep;
-  lxw_workbook* workbook;
-  lxw_worksheet* worksheet;
   std::priority_queue <Event, std::vector<Event>, Compare> eventQueue;
   Process* simProcesses;
   int numProcesses;

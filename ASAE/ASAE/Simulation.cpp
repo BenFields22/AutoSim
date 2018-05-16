@@ -25,21 +25,12 @@ Simulation::Simulation(){
   startRecordRow = 1;
   FinishRecordRow = 1;
   timeStep = 0.001;
-  workbook  = workbook_new("EventLog.xlsx");
-  worksheet = workbook_add_worksheet(workbook, NULL);
-  worksheet_write_string(worksheet, 0, 0,"JobID Start", NULL);
-  worksheet_write_string(worksheet, 0, 1,"StartTime", NULL);
-  worksheet_write_string(worksheet, 0, 2,"JobsInSystem", NULL);
   startFile<<"JobID Start,StartTime,Resource,JobsInSystem\n";
-  worksheet_write_string(worksheet, 0, 4,"JobID END", NULL);
-  worksheet_write_string(worksheet, 0, 5,"ExitTime", NULL);
-  worksheet_write_string(worksheet, 0, 6,"JobsInSystem", NULL);
   finishFile<<"JobID END,ExitTime,JobsInSystem\n";
 }
 
 //Description:destructor to save and close excel workbook
 Simulation::~Simulation(){
-  workbook_close(workbook);
   startFile.close();
   finishFile.close();
   std::cout<<"Terminating simulation\n";
@@ -80,12 +71,12 @@ void Simulation::init(){
       id.append(":");
       id.append(std::to_string(i));
       id.append("-(x)]");
-      Event E(i,id,START,simTime);
+      Event E(i,id,START,simTime,0);
       eventQueue.push(E);
     }
     else{
       //schedule pull to start cycle
-      Event E(i,"-1",PULL_BUFFER,simTime);
+      Event E(i,"-1",PULL_BUFFER,simTime,0);
       eventQueue.push(E);
     }
   }
@@ -157,45 +148,43 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       std::cout<<"FeedBufferState: NO BUFFER\n";
     }
   }
+  //std::cout<<"\n\nBuffer check\n";
+  //simProcesses[currentProcess].printNumInBuffers();
     
-    //select the buffer to place into if need to push
-    int BuffertoPush;
-    if(currentEvent.previousBuffer != -1)
-    {
-      BuffertoPush = currentEvent.previousBuffer;
-    }
-    else{
-      if(simProcesses[currentProcess].getNumDownStreamDependencies()<2){
-        BuffertoPush = 0;
-        currentEvent.previousBuffer = 0;
-      }
-      else{
-        BuffertoPush = simProcesses[currentProcess].getBufferIndexToPush();
-        currentEvent.previousBuffer = BuffertoPush;
-      }
-    }
-    int currentBufferState;
-    if(simProcesses[currentProcess].getNumDownStreamDependencies()==0){
-      currentBufferState = -1;
-    }
-    else{
-      currentBufferState = simProcesses[currentProcess].BufferState(BuffertoPush);
-    }
+  //select the buffer to place into if need to push
+  int BuffertoPush;
+  if(simProcesses[currentProcess].getNumDownStreamDependencies()<2){
+    BuffertoPush = 0;
+    currentEvent.previousBuffer = 0;
+  }
+  else{
+    BuffertoPush = simProcesses[currentProcess].getBufferIndexToPush();
+    currentEvent.previousBuffer = BuffertoPush;
+  }
   
-    if(this->debug){
-      if (currentBufferState == EMPTY) {
-        std::cout<<"pushBufferState: EMPTY\n";
-      }
-      if (currentBufferState == FULL) {
-        std::cout<<"pushBufferState: FULL\n";
-      }
-      if (currentBufferState == SPACE_LEFT) {
-        std::cout<<"pushBufferState: SPACE_LEFT\n";
-      }
-      if (currentBufferState == -1) {
-        std::cout<<"pushBufferState: NO BUFFER\n";
-      }
+  int currentBufferState;
+  if(simProcesses[currentProcess].getNumDownStreamDependencies()==0){
+    currentBufferState = -1;
+  }
+  else{
+    //std::cout<<"trying to push into buffer "<<BuffertoPush<<"\n";
+    currentBufferState = simProcesses[currentProcess].BufferState(BuffertoPush);
+  }
+
+  if(this->debug){
+    if (currentBufferState == EMPTY) {
+      std::cout<<"pushBufferState: EMPTY\n";
     }
+    if (currentBufferState == FULL) {
+      std::cout<<"pushBufferState: FULL\n";
+    }
+    if (currentBufferState == SPACE_LEFT) {
+      std::cout<<"pushBufferState: SPACE_LEFT\n";
+    }
+    if (currentBufferState == -1) {
+      std::cout<<"pushBufferState: NO BUFFER\n";
+    }
+  }
   
   if (currentEvent.getEventType() == PULL_BUFFER) {
     //try to pull
@@ -224,6 +213,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.nextTime = simTime;
       info.triggerEventType = PULL_BUFFER;
       info.previousBuffer = -1;
+      info.timeAtProcess = 0;
     }
     else{
       //if no jobs then schedule another pull
@@ -233,6 +223,11 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.triggerEventType = PULL_BUFFER;
       info.nextTime = simTime + timeStep;
       info.previousBuffer = -1;
+      info.timeAtProcess = currentEvent.getTimesAtCurrentState()+1;
+      if(info.timeAtProcess>1000000){
+        std::string message = "DEADLOCK: Stuck at process "+std::to_string(currentProcess)+" trying to pull!";
+        throw std::runtime_error(message);
+      }
     }
   }
   else if(currentEvent.getEventType() == PUSH_BUFFER){
@@ -257,6 +252,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
         info.jobID = id;
         info.triggerEventType = PUSH_BUFFER;
         info.previousBuffer = -1;
+        info.timeAtProcess = 0;
       }
       else{
         //schedule a pull
@@ -266,6 +262,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
         info.jobID = "-1";
         info.triggerEventType = PUSH_BUFFER;
         info.previousBuffer = -1;
+        info.timeAtProcess = 0;
       }
     }
     else{
@@ -276,6 +273,11 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.nextTime = simTime+timeStep;
       info.triggerEventType = PUSH_BUFFER;
       info.previousBuffer = BuffertoPush;
+      info.timeAtProcess = currentEvent.getTimesAtCurrentState()+1;
+      if(info.timeAtProcess>1000000){
+        std::string message = "DEADLOCK: Stuck at process "+std::to_string(currentProcess)+" trying to push!";
+        throw std::runtime_error(message);
+      }
     }
   }
   else if(currentEvent.getEventType() == START){
@@ -283,9 +285,6 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       jobsInSystem++;
     }
     //schedule finish event
-    worksheet_write_string(worksheet, startRecordRow, 0,jid.c_str(), NULL);
-    worksheet_write_string(worksheet, startRecordRow, 1,std::to_string(currentEvent.getProcessTime()).c_str(), NULL);
-    worksheet_write_string(worksheet, startRecordRow, 2,std::to_string(jobsInSystem).c_str(), NULL);
     startFile<<jid.c_str()<<","
               <<std::to_string(currentEvent.getProcessTime()).c_str()<<","
               <<std::to_string(jobsInSystem).c_str()<<"\n";
@@ -297,12 +296,11 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
     info.nextTime = simTime+simProcesses[currentProcess].getProcessingTimeFromDist();
     info.triggerEventType = START;
     info.previousBuffer = -1;
+    info.timeAtProcess = 0;
     
   }
   else if(currentEvent.getEventType() == FINISH){
     //try to push onto buffer or wait or nothing if terminal
-    worksheet_write_string(worksheet, FinishRecordRow, 4,jid.c_str(), NULL);
-    worksheet_write_string(worksheet, FinishRecordRow, 5,std::to_string(currentEvent.getProcessTime()).c_str(), NULL);
     finishFile<<jid.c_str()<<","
     <<std::to_string(currentEvent.getProcessTime()).c_str()<<",";
     
@@ -322,6 +320,7 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.nextTime = simTime;
       info.triggerEventType = FINISH;
       info.previousBuffer = -1;
+      info.timeAtProcess = 0;
     }
     else{
       //if not terminal need to try to schedule push
@@ -331,9 +330,9 @@ nextEventInfo Simulation::processCurrentEvent(Event currentEvent, int currentPro
       info.nextTime = simTime;
       info.triggerEventType = FINISH;
       info.previousBuffer = BuffertoPush;
+      info.timeAtProcess = 0;
     }
     //write how many jobs are in the system
-    worksheet_write_string(worksheet, FinishRecordRow, 6,std::to_string(jobsInSystem).c_str(), NULL);
     finishFile<<std::to_string(jobsInSystem).c_str()<<"\n";
     FinishRecordRow++;
   }
@@ -357,7 +356,7 @@ void Simulation::processNextEvent(){
   nextEventInfo next = processCurrentEvent(currentEvent,currentProcess);
   
   if (next.NextProcess != -1) {
-    Event next_E(next.NextProcess,next.jobID,next.eventType,next.nextTime,next.previousBuffer);
+    Event next_E(next.NextProcess,next.jobID,next.eventType,next.nextTime,next.timeAtProcess,next.previousBuffer);
     eventQueue.push(next_E);
   }
 }

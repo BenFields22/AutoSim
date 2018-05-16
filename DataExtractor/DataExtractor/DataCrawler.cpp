@@ -12,7 +12,7 @@
 DataCrawler::DataCrawler(){
   myStartFile.open("starts.txt");
   if(!myStartFile.is_open()){
-    std::cout<<"Error Unable to open start event log\n";
+    std::cout<<"ERROR: Unable to open start event log\n";
     throw std::runtime_error("ERROR: failed to open starts.txt file!");
   }
   std::cout<<"Successfully opened start file\n";
@@ -113,6 +113,124 @@ void DataCrawler::run(){
   int maxJIS = getMaxJobsInSystem(myFinishs);
   std::cout<<"Max Number of Components in System: "<<maxJIS<<"\n";
   resultsFile<<"\nMax Number of Components in System: "<<maxJIS<<"\n";
+  
+  //create the buffer capacity matrix
+  int** bufferCap = new int*[numProcesses];
+  for(int i =0;i<numProcesses;++i){
+    bufferCap[i] = new int[numProcesses];
+    for(int j = 0; j<numProcesses;++j){
+      bufferCap[i][j] = 0;
+    }
+  }
+  
+  getUtilizedBufferCapacity(bufferCap,transitionStateMatrix,numProcesses);
+  std::cout<<"\nMax Utilized Buffer Capacity Matrix\n";
+  resultsFile<<"\nMax Utilized Buffer Capacity Matrix\n";
+  printTransitionStateMatrix(bufferCap, numProcesses);
+  
+}
+
+int DataCrawler::getJobNum(std::string line){
+  int ans;
+  int posOfColon = getPosOfColon(line);
+  int length = posOfColon -1;
+  ans = std::atoi(line.substr(1,length).c_str());
+  return ans;
+}
+
+//Description: For the position check what was the max capacity used for the buffer
+void DataCrawler::getCapacityForPos(int** buffMat,int upstream, int downstream){
+  // the source represents the finishs and the destination if the start
+  //start with gap to see if there is a utilized buffer
+  int startNum = 3;
+  int bufferFound = 0;
+  int finishNum = 1;
+  int done = 0;
+  int inBuffer = 0;
+  int max = -9999;
+  int lastCheckedStartIndex = 0;
+  int lastCheckedFinishIndex = 0;
+  while(!done){
+    //std::cout<<"In buffer: "<<inBuffer<<"\n";
+    //start cheking for buffer case
+    //find the relevent startjob with if of [startNum:destination-...
+    float startTime;
+    int found1 = 1;
+    for(int i = lastCheckedStartIndex;i<myStarts.size();++i){
+      //if found then set found1 to 0 and break
+      int jobNum = getJobNum(myStarts[i].jobID);
+      int pid = getProcessID(myStarts[i].jobID);
+      if(jobNum == startNum && pid == upstream){
+        //std::cout<<"Found upstream Start with jobNum "<<jobNum<<" and pid "<<upstream<<"\n";
+        found1 = 0;
+        lastCheckedStartIndex = i;
+        startTime = myStarts[i].time;
+      }
+      if(found1==0)break;
+    }
+    int found2 = 1;
+    float finishTime;
+    for(int i = lastCheckedFinishIndex;i<myFinishs.size();++i){
+      //if found then set found2 to 0 and break
+      int jobNum = getJobNum(myFinishs[i].jobID);
+      int pid = getProcessID(myFinishs[i].jobID);
+      if(jobNum == finishNum && pid == downstream){
+        //std::cout<<"Found downstream finish with jobNum "<<jobNum<<" and pid "<<downstream<<"\n";
+        found2 = 0;
+        lastCheckedFinishIndex = i;
+        finishTime = myFinishs[i].time;
+      }
+      if(found2==0)break;
+    }
+    if(found1==1||found2==1){
+      done = 1;
+      //std::cout<<"Not found\n";
+      continue;
+    }
+    //use the times to check if there is a gap
+    if(myStarts[lastCheckedStartIndex].time < myFinishs[lastCheckedFinishIndex].time){
+      //there is a buffer
+      //std::cout<<"Found a buffer at transition "<<upstream<<"->"<<downstream<<" \n";
+      //need to add one
+      inBuffer = inBuffer+1;
+      if(inBuffer>max){
+        max = inBuffer;
+      }
+      startNum++;
+      bufferFound=1;
+      continue;
+    }
+    if(myStarts[lastCheckedStartIndex].time >= myFinishs[lastCheckedFinishIndex].time && (startNum-finishNum)>2){
+      inBuffer = inBuffer-1;
+      finishNum++;
+      continue;
+    }
+    if(myStarts[lastCheckedStartIndex].time >= myFinishs[lastCheckedFinishIndex].time && (startNum-finishNum)==2){
+      startNum++;
+      finishNum++;
+      continue;
+    }
+  }
+  //std::cout<<"Max seen is "<<max<<"\n";
+  //set the max seen
+  buffMat[upstream][downstream] = max;
+}
+
+//Description: look through data to see what capacity of buffers was used
+void DataCrawler::getUtilizedBufferCapacity(int** bufMat,int** freqMat,int size){
+  //for every position with a valid transition check if there is a utilized buffer
+  for(int i = 0;i<size;++i){
+    for(int j = 0;j<size;++j){
+      //check everyposition valid transition
+      if(freqMat[i][j]){
+        //valid transition and need to check
+        int upstream = i;
+        int dowstream = j;
+        std::cout<<"Checking transition with upstream "<<upstream<<" and dowstream "<<dowstream<<"\n";
+        getCapacityForPos(bufMat, upstream, dowstream);
+      }
+    }
+  }
 }
 
 //Description: Helper function to get the closing bracket of an initial opening bracket

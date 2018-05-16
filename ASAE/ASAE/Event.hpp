@@ -29,23 +29,26 @@ typedef struct{
   std::string jobID;
   float nextTime;
   int previousBuffer;
+  int timeAtProcess;
 }nextEventInfo;
 
 //Description: class used to contain information important for processing an event in the system
 class Event{
 private:
   int processID;
+  int timesAtCurrentState;
   std::string jobID;
   int eventType;
   float processTime;
 public:
   int previousBuffer;
-  Event(int pID, std::string jID,int eventType,float PTime,int previousBuffer = -1);
+  Event(int pID, std::string jID,int eventType,float PTime,int numAtCurrentState,int previousBuffer = -1);
   float getProcessTime();
   int getProcessID();
   std::string getJobID();
   void printEvent();
   int getEventType();
+  int getTimesAtCurrentState();
 };
 
 //Description: utility class used to compare the simtime for events when placing into the priority queue

@@ -22,6 +22,10 @@ int Buffer::getState(){
   }
 }
 
+int Buffer::getNumInQueue(){
+  return (int)queue.size();
+}
+
 //Description:return the next event in the queue
 Event Buffer::GetNext(){
   Event E = queue.front();

@@ -66,8 +66,10 @@ public:
   void getTransitionTimes(float** mat, int size, std::vector<Finish> &myFin, std::vector<Start> &myStart);
   void averageTransitionTimes(float** mat, int size,int** matFreq);
   int getMaxJobsInSystem(std::vector<Finish> &myFin);
+  void getUtilizedBufferCapacity(int** bufMat,int** freqMat,int size);
+  void getCapacityForPos(int** buffMat,int source, int destination);
+  int getJobNum(std::string line);
   void run();
 };
 
 #endif /* DataCrawler_hpp */
-

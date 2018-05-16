@@ -10,12 +10,13 @@
 #include "Event.hpp"
 
 //Description:constructor for an event to be processed in simulation
-Event::Event(int pID, std::string jID,int eventType,float pTime,int pBuffer){
+Event::Event(int pID, std::string jID,int eventType,float pTime,int numAtCurrentState,int pBuffer){
   this->processID = pID;
   this->jobID = jID;
   this->eventType = eventType;
   this->processTime = pTime;
   this->previousBuffer = pBuffer;
+  this->timesAtCurrentState = numAtCurrentState;
 }
 
 //Description:get the type of event (PUSH,PULL,START, FINISH)
@@ -36,6 +37,11 @@ std::string Event::getJobID(){
 //Description:get the process id associated with the current event
 int Event::getProcessID(){
   return processID;
+}
+
+//Description: Helper to get the times at the same state
+int Event::getTimesAtCurrentState(){
+  return timesAtCurrentState;
 }
 
 //Description:utility function to print the details of the event to the console for debug

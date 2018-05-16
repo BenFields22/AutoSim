@@ -41,6 +41,7 @@ int main(int argc, const char * argv[]) {
     std::cout<<"Running Simulation with "<<numJobs<<" Jobs\n";
     mySim.run(numJobs,NO_VERBOSE);
   } catch (const std::runtime_error& e) {
+    std::cout<<"\nERROR in Simulation\n";
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
   }
@@ -51,10 +52,11 @@ int main(int argc, const char * argv[]) {
     DataCrawler myCrawler;
     myCrawler.run();
   }catch (const std::runtime_error& e) {
+    std::cout<<"\nERROR in data Crawler!\n";
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
   }
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 //Description:parse the text file containing the model definition

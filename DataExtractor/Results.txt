@@ -1,4 +1,4 @@
-Results for Tue May 15 14:12:42 2018
+Results for Tue May 15 19:41:56 2018
 
 Number of Start Records: 163
 Number of Finish Records: 163
@@ -26,3 +26,9 @@ Transition Times Matrix
         2|    0.000|    0.000|    0.000|
 
 Max Number of Components in System: 14
+
+Max Utilized Buffer Capacity Matrix
+PID   0   1   2 
+  0|  0|  0|  5|
+  1|  0|  0|  5|
+  2|  0|  0|  0|

@@ -30,6 +30,7 @@ public:
   Event GetNext();
   void placeInBuffer(Event E);
   int getState();
+  int getNumInQueue();
 };
 
 #endif /* Buffer_hpp */

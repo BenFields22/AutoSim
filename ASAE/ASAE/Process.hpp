@@ -83,6 +83,7 @@ public:
   void placeEventInBuffer(Event E,int ind);
   Event getEventFromBuffer(int ind);
   int BufferState(int i);
+  void printNumInBuffers();
   std::string getJobNum();
   void AddOneJob();
 };

@@ -69,6 +69,13 @@ void Process::setUpstreamDependencies(std::string line){
   }
 }
 
+void Process::printNumInBuffers(){
+  std::cout<<"Process ID "<<processID<<"\n";
+  for(int i = 0;i<process_Buffers.size();++i){
+    std::cout<<"Buffer Index "<<i<<" has "<<process_Buffers[i].getNumInQueue()<<" in queue \n";
+  }
+}
+
 //Description:create the downstream dependencies to control flow. limited to 0-9
 void Process::setDownstreamDependencies(std::string line){
   //std::cout<<"\tSetting up downstream dependencies with string "<<line<<"\n";
@@ -87,7 +94,7 @@ void Process::setDownstreamDependencies(std::string line){
     Buffer buff;
     buff.capacity = conn.capacity;
     process_Buffers.push_back(buff);
-    start = start +9;
+    start = start +10;
   }
   
   if(abs(total-1.00) > 0.0001 && num != 0){
@@ -169,8 +176,11 @@ int Process::getBufferIndexToPush(){
   std::cout<<"\n";*/
   
   int ans = 0;
-  int v2 = rand() % 100 + 1;
-  float percentR = (float)v2/100.0;
+  int v2 = (rand() % 101);
+  float percentR = (float)(v2)/100.0;
+  //std::cout<<"*************************"<<percentR<<"\n";
+  //if(percentR>0.9999)std::cout<<"*************************"<<percentR<<"\n";
+  //if(percentR<0.0001)std::cout<<"*************************"<<percentR<<"\n";
   //std::cout<<"Rand percentage: "<<percentR<<"\n";
   float totalPercentage = 0.0;
   for(int i = 0;i<numdep;i++){
