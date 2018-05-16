@@ -1,5 +1,5 @@
 <MODEL>
-<100>                   #number of jobs to run
+<10>                   #number of jobs to run
 <5>                       //number of processes
 <PROCESS-0>
 <T:1.0:2.0:3.0>           //process time

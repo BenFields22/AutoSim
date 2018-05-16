@@ -63,7 +63,7 @@ int main(int argc, const char * argv[]) {
 std::vector<processInfo> getModelDefinition( int* numJobs){
   std::vector<processInfo> model;
   std::fstream myFile;
-  myFile.open("./ASAE/model.txt");
+  myFile.open("./model.txt");
   if(!myFile.is_open()){
     throw std::runtime_error("ERROR: failed to open file!");
   }
