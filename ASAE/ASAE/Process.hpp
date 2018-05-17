@@ -36,6 +36,11 @@ typedef struct{
   int bufferIndex;
 }upStreamConnection;
 
+typedef struct{
+  float percent;
+  int index;
+}selectionChance;
+
 enum Dist{
   TRIANGULAR,
   NORMAL,
@@ -60,6 +65,11 @@ private:
   float minimum;
   float upper;
   float constant;
+  std::default_random_engine generator;
+  std::normal_distribution<float> distribution;
+  std::uniform_real_distribution<float> U_distribution;
+  float uniformLower;
+  float uniformUpper;
   float normalAverage;
   float normalStdDev;
 public:

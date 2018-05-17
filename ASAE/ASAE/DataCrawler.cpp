@@ -43,9 +43,6 @@ DataCrawler::~DataCrawler(){
   myStartFile.close();
   myFinishFile.close();
   resultsFile.close();
-  //system("open -a TextEdit ./ASAE/model.txt");
-  //system("open -a TextEdit starts.txt");
-  //system("open -a TextEdit Finish.txt");
   system("open -a TextEdit Results.txt");
 }
 
@@ -67,7 +64,18 @@ void DataCrawler::run(){
   std::cout<<"Simulation runtime: "<<endTime<<"\n";
   resultsFile<<"Simulation runtime: "<<endTime<<"\n";
   
-  std::unordered_set<int> numberOfTerminalStates = getNumberOfTerminalStates();
+  int numProcesses = getNumProcesses(myFinishs);
+  //create the transition state matrix
+  int** transitionStateMatrix = new int*[numProcesses];
+  for(int i =0;i<numProcesses;++i){
+    transitionStateMatrix[i] = new int[numProcesses];
+    for(int j = 0; j<numProcesses;++j){
+      transitionStateMatrix[i][j] = 0;
+    }
+  }
+  //find count of transitions
+  countTransitions(transitionStateMatrix, numProcesses,myFinishs);
+  std::unordered_set<int> numberOfTerminalStates = getNumberOfTerminalStates(transitionStateMatrix,numProcesses);
   std::cout<<"\nThere are/is "<<numberOfTerminalStates.size()<<" Terminal State(s)\n";
   resultsFile<<"\nThere are/is "<<numberOfTerminalStates.size()<<" Terminal State(s)\n";
   int totalComplete = 0;
@@ -88,18 +96,9 @@ void DataCrawler::run(){
   std::cout<<"Max Number of Components in System: "<<maxJIS<<"\n";
   resultsFile<<"\nMax Number of Components in System: "<<maxJIS<<"\n";
   
-  int numProcesses = getNumProcesses(myFinishs);
+  
   std::cout<<"There are "<<numProcesses<<" processes\n";
   resultsFile<<"Number of Processes: "<<numProcesses<<"\n";
-  
-  //create the transition state matrix
-  int** transitionStateMatrix = new int*[numProcesses];
-  for(int i =0;i<numProcesses;++i){
-    transitionStateMatrix[i] = new int[numProcesses];
-    for(int j = 0; j<numProcesses;++j){
-      transitionStateMatrix[i][j] = 0;
-    }
-  }
   
   //create the transition time matrix
   float** transitionTimeMatrix = new float*[numProcesses];
@@ -113,8 +112,7 @@ void DataCrawler::run(){
   std::cout<<"Transition State Matrix\n";
   resultsFile<<"\nTransition State Matrix\n";
   //printTransitionStateMatrix(transitionStateMatrix, numProcesses);
-  //find count of transitions
-  countTransitions(transitionStateMatrix, numProcesses,myFinishs);
+  
   printTransitionStateMatrix(transitionStateMatrix, numProcesses);
   
   getTransitionTimes(transitionTimeMatrix, numProcesses, myFinishs, myStarts);
@@ -228,33 +226,16 @@ std::vector<int> DataCrawler::getProperStartConnections(int downstream,int upstr
   return ans;
 }
 
-int DataCrawler::isIdDepend(std::string jid){
-  int ans = 0;
-  if(getDependancy(jid)=="x"){
-    return -1;
-  }
-  for(int i=1;i<(int)myStarts.size();++i){
-    std::vector<std::string> depend = getUpConnections(myStarts[i].jobID);
-    for(int j = 0; j<(int)depend.size();++j){
-      if(depend[j].compare(jid)==0){
-        ans =1;
-        return ans;
-      }
-    }
-  }
-  return ans;
-}
-
 //Description: Return how many exits to the system there are
-std::unordered_set<int> DataCrawler::getNumberOfTerminalStates(){
+std::unordered_set<int> DataCrawler::getNumberOfTerminalStates(int** freqMat, int size){
   std::unordered_set<int> ans;
-  //for each finish id determine if it is a dependency
-  for(int i = 1;i<(int)myFinishs.size();++i){
-    int isNotTerminal = isIdDepend(myFinishs[i].jobID);
-    if(isNotTerminal==-1)continue;
-    if(isNotTerminal == 0){
-      int pid = getProcessID(myFinishs[i].jobID);
-      ans.insert(pid);
+  for(int i = 0;i<size;++i){
+    int sum = 0;
+    for(int j = 0;j<size;++j){
+      sum += freqMat[i][j];
+    }
+    if(sum==0){
+      ans.insert(i);
     }
   }
   return ans;
@@ -265,10 +246,6 @@ void DataCrawler::getCapacityForPos(int** buffMat,int upstream, int downstream){
   // the source represents the finishs and the destination if the start
   //start with gap to see if there is a utilized buffer
   std::vector<int> properStartConnections = getProperStartConnections(downstream, upstream);
-  /*std::cout<<"\nProper connections for transition "<<upstream<<"->"<<downstream<<"\n";
-  for(int i = 0;i<(int)properStartConnections.size();++i){
-    std::cout<<properStartConnections[i]<<"\n";
-  }*/
   int startNum = 3;
   int bufferFound = 0;
   int finishNum = 1;
@@ -280,7 +257,6 @@ void DataCrawler::getCapacityForPos(int** buffMat,int upstream, int downstream){
   float startTime=0.0;
   float finishTime=0.0;
   while(!done){
-    //std::cout<<"In buffer: "<<inBuffer<<"\n";
     //start cheking for buffer case
     //find the relevent startjob with if of [startNum:destination-...
     int found1 = 1;
@@ -289,11 +265,9 @@ void DataCrawler::getCapacityForPos(int** buffMat,int upstream, int downstream){
       int jobNum = getJobNum(myStarts[i].jobID);
       int pid = getProcessID(myStarts[i].jobID);
       if(jobNum == properStartConnections[startNum-1] && pid == upstream){
-        //std::cout<<"Found upstream Start with jobNum "<<jobNum<<" and pid "<<upstream<<"\n";
         found1 = 0;
         lastCheckedStartIndex = i;
         startTime = myStarts[i].time;
-        //std::cout<<"Start time: "<<startTime<<"\n";
       }
       if(found1==0)break;
     }
@@ -303,24 +277,19 @@ void DataCrawler::getCapacityForPos(int** buffMat,int upstream, int downstream){
       int jobNum = getJobNum(myFinishs[i].jobID);
       int pid = getProcessID(myFinishs[i].jobID);
       if(jobNum == finishNum && pid == downstream){
-        //std::cout<<"Found downstream finish with jobNum "<<jobNum<<" and pid "<<downstream<<"\n";
         found2 = 0;
         lastCheckedFinishIndex = i;
         finishTime = myFinishs[i].time;
-        //std::cout<<"Finish time: "<<finishTime<<"\n";
       }
       if(found2==0)break;
     }
     if(found1==1||found2==1){
       done = 1;
-      //std::cout<<"Not found\n";
       continue;
     }
-    //std::cout<<"Num in Buffer "<<inBuffer<<"\n";
     //use the times to check if there is a gap
     if(startTime < finishTime){
       //there is a buffer
-      //std::cout<<"Found a buffer at transition "<<upstream<<"->"<<downstream<<" adding one\n";
       //need to add one
       inBuffer = inBuffer+1;
       if(inBuffer>max){
@@ -331,7 +300,6 @@ void DataCrawler::getCapacityForPos(int** buffMat,int upstream, int downstream){
       continue;
     }
     else if(startTime >= finishTime && (startNum-finishNum)>2){
-      //std::cout<<"Minus\n";
       inBuffer = inBuffer-1;
       finishNum++;
       continue;
@@ -342,7 +310,6 @@ void DataCrawler::getCapacityForPos(int** buffMat,int upstream, int downstream){
       continue;
     }
   }
-  //std::cout<<"Max seen is "<<max<<"\n";
   //set the max seen
   buffMat[upstream][downstream] = max;
 }
@@ -357,7 +324,6 @@ void DataCrawler::getUtilizedBufferCapacity(int** bufMat,int** freqMat,int size)
         //valid transition and need to check
         int upstream = i;
         int dowstream = j;
-        //std::cout<<"Checking transition with upstream "<<upstream<<" and dowstream "<<dowstream<<"\n";
         getCapacityForPos(bufMat, upstream, dowstream);
       }
     }
@@ -423,7 +389,6 @@ int DataCrawler::getPosOfDash(std::string line, int start){
 std::string DataCrawler::getDependancy(std::string line){
   std::string ans;
   int start = getPosOfColon(line);
-  //std::cout<<"Pos of colon is "<<start<<"\n";
   int end = getPosOfDash(line, start);
   int begin = end+2;
   int length = (int)line.length()-2-begin;
@@ -435,7 +400,6 @@ std::string DataCrawler::getDependancy(std::string line){
 std::vector<std::string> DataCrawler::getUpConnections(std::string line){
   std::vector<std::string> depend;
   std::string dependStr = getDependancy(line);
-  //std::cout<<"When creating depend the string is "<<dependStr<<"\n";
   if(dependStr=="x"){
     depend.push_back("x");
     return depend;
@@ -443,12 +407,9 @@ std::vector<std::string> DataCrawler::getUpConnections(std::string line){
   int index = 0;
   while(index != dependStr.length()-1){
     index = posOfNextBracket(dependStr, index);
-    //std::cout<<"Index is "<<index<<"\n";
     int closingPos = getClosingBracket(index+1, dependStr);
-    //std::cout<<"closing bracket is "<<closingPos<<"\n";
     std::string val = dependStr.substr(index,closingPos-index+1);
     depend.push_back(val);
-    //std::cout<<"depend is: "<<val<<"\n";
     index = closingPos;
   }
   return depend;
@@ -467,17 +428,12 @@ std::vector<Start> DataCrawler::readInStartsFile(){
     aStart.jobID = token;
     if(lineNum != 0){
       aStart.connections = getUpConnections(token);
-      /*std::cout<<"created "<<aStart.connections.size()<<" connections\n";
-       for(int i = 0;i<aStart.connections.size();++i){
-       std::cout<<"connection: "<< aStart.connections[i]<<"\n";
-       }*/
     }
     std::getline(ss,token, ',');
     aStart.time = std::atof(token.c_str());
     std::getline(ss,token, ',');
     aStart.jobsInSystem = std::atoi(token.c_str());
     readStarts.push_back(aStart);
-    //std::cout<<"Line Number: "<<lineNum<<"\n";
     lineNum++;
   }
   return readStarts;
@@ -499,7 +455,6 @@ std::vector<Finish> DataCrawler::readInFinishFile(){
     std::getline(ss,token, ',');
     aFinish.jobsInSystem = std::atoi(token.c_str());
     readFinish.push_back(aFinish);
-    //std::cout<<"Line Number: "<<lineNum<<"\n";
     lineNum++;
   }
   return readFinish;
@@ -525,15 +480,10 @@ int DataCrawler::getNumProcesses(std::vector<Finish> &myFin){
   std::unordered_set<int> myPIDs;
   for(int i = 1;i<(int)myFin.size();++i){
     std::string line = myFin[i].jobID;
-    //std::cout<<"line is "<<line<<"\n";
     int start = getPosOfColon(line);
-    //std::cout<<"Pos of colon is "<<start<<"\n";
     int end = getPosOfDash(line, start);
-    //std::cout<<"Pos of dash is "<<end<<"\n";
     int length = end - start -1;
-    //std::cout<<"length is "<<length<<"\n";
     int pid = std::atoi(line.substr(start+1,length).c_str());
-    //std::cout<<"PID: "<<pid<<"\n";
     myPIDs.insert(pid);
   }
   return (int)myPIDs.size();
@@ -586,11 +536,8 @@ void DataCrawler::printTransitionTimeMatrix(float** mat, int size){
 //Description: Return the pid from a given jid string
 int DataCrawler::getProcessID(std::string line){
   int start = getPosOfColon(line);
-  //std::cout<<"Pos of colon is "<<start<<"\n";
   int end = getPosOfDash(line, start);
-  //std::cout<<"Pos of dash is "<<end<<"\n";
   int length = end - start -1;
-  //std::cout<<"length is "<<length<<"\n";
   int pid = std::atoi(line.substr(start+1,length).c_str());
   return pid;
 }
@@ -598,16 +545,12 @@ int DataCrawler::getProcessID(std::string line){
 //Description: get all the process IDs in a provided string
 std::vector<int> DataCrawler::getPIDS(std::string line){
   std::vector<int> ans;
-  //std::cout<<"extracting pids from line: "<<line<<"\n";
   int index = 0;
   while(index != line.length()-1){
     index = posOfNextBracket(line, index);
-    //std::cout<<"Index is "<<index<<"\n";
     int closingPos = getClosingBracket(index+1, line);
-    //std::cout<<"closing bracket is "<<closingPos<<"\n";
     int pid = getProcessID(line.substr(index+1,closingPos-index-1));
     ans.push_back(pid);
-    //std::cout<<"PID of depend: "<<pid<<"\n";
     index = closingPos;
   }
   return ans;
@@ -617,16 +560,12 @@ std::vector<int> DataCrawler::getPIDS(std::string line){
 void DataCrawler::countTransitions(int **mat, int size, std::vector<Finish> &myfin){
   for(int i = 1;i<myfin.size();++i){
     std::string jid = myfin[i].jobID;
-    //std::cout<<"Jid is "<<jid<<"\n";
     int pid = getProcessID(jid);
-    //std::cout<<"Receiving transition pid is "<<pid<<"\n";
     //need to get upstream transitions
     std::string depend = getDependancy(jid);
-    //std::cout<<"Dependency is "<<depend<<"\n";
     if(depend == "x")continue;
     //need to parse dependency to get the PID of each upstram task if not x
     std::vector<int> upstream = getPIDS(depend);
-    //std::cout<<"There are "<<upstream.size()<<" connections\n";
     for(int j = 0;j<upstream.size();++j){
       int process = upstream[j];
       mat[process][pid] = mat[process][pid]+1;
@@ -639,12 +578,9 @@ startInfo DataCrawler::getStart(std::string id,std::vector<Start> &myStart){
   startInfo info;
   for(int i=1;i<(int)myStart.size();++i){
     int depNum = (int)myStart[i].connections.size();
-    //std::cout<<"There are "<<depNum<<" dependencies\n";
     for(int j = 0;j<depNum;++j){
       if(myStart[i].connections[j].compare(id)==0){
         //they are equal and return info
-        //std::cout<<"***********************They are equal\n";
-        //std::cout<<myStart[i].connections[j]<<" and "<<id<<"\n";
         info.startTime = myStart[i].time;
         info.Pid = getProcessID(myStart[i].jobID);
         return info;
@@ -661,17 +597,11 @@ void DataCrawler::getTransitionTimes(float** mat, int size, std::vector<Finish> 
   //for every finish except last position check when it begins next and is the major dependency of the start
   for(int i = 1;i<(int)myFin.size()-1;++i){
     int pid = getProcessID(myFin[i].jobID);
-    //std::cout<<"pid is "<<pid<<"\n";
     float finishTime = myFin[i].time;
-    //std::cout<<"finishTime is "<<finishTime<<"\n";
     startInfo info = getStart(myFin[i].jobID,myStart);
     if(info.Pid <0)continue;
-    //std::cout<<"Start time is "<<info.startTime<< " and the id is "<<info.Pid<<"\n";
     float elapsedTime = info.startTime - finishTime;
-    //std::cout<<"elapsed time is "<<elapsedTime<<"\n";
-    //std::cout<<"Previous value is "<<mat[pid][info.Pid];
     mat[pid][info.Pid] =  mat[pid][info.Pid] + elapsedTime;
-    //std::cout<<"New value is "<<mat[pid][info.Pid]<<"\n";
   }
 }
 

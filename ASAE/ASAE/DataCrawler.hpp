@@ -75,9 +75,8 @@ public:
   void getUtilizedBufferCapacity(int** bufMat,int** freqMat,int size);
   void getCapacityForPos(int** buffMat,int source, int destination);
   int getJobNum(std::string line);
-  std::unordered_set<int> getNumberOfTerminalStates();
+  std::unordered_set<int> getNumberOfTerminalStates(int**freqMat,int size);
   std::vector<int> getProperStartConnections(int downstream,int upstream);
-  int isIdDepend(std::string jid);
   void getAverageProcessTimes(float*mytimes, int size);
   float findStartTime(std::string id);
   processData countNumberOfTimesPIDFinishes(int id);

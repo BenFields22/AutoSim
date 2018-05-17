@@ -9,11 +9,6 @@
 
 #include "Process.hpp"
 
-typedef struct{
-  float percent;
-  int index;
-}selectionChance;
-
 //Description:defines what type of distribution a process adheres to (triangular,normal, uniform)
 void Process::setDistType(int type){
   this->distType = type;
@@ -55,9 +50,7 @@ void Process::printProcessInfo(){
 
 //Description:create the dependencies that will be upstream from a process. limited to 0-9
 void Process::setUpstreamDependencies(std::string line){
-  //std::cout<<"\tSetting up upstream dependencies with string "<<line<<"\n";
   int num = std::atoi(line.substr(0,1).c_str());
-  //std::cout<<"There are "<<num<<" upstream dependencies\n";
   int start = 3;
   for(int i = 0;i<num;i++){
     //create each dependency
@@ -78,9 +71,7 @@ void Process::printNumInBuffers(){
 
 //Description:create the downstream dependencies to control flow. limited to 0-9
 void Process::setDownstreamDependencies(std::string line){
-  //std::cout<<"\tSetting up downstream dependencies with string "<<line<<"\n";
   int num = std::atoi(line.substr(0,1).c_str());
-  //std::cout<<"There are "<<num<<" downstream dependencies\n";
   int start = 2;
   float total = 0.0;
   for(int i = 0;i<num;i++){
@@ -108,9 +99,7 @@ void Process::setDownstreamDependencies(std::string line){
 //Description:return a random time for a triangular dist
 float getTrianglarDistribution(float a, float b, float c)
 {
-  //std::cout << "Generating a random number in the triangular distribution with low " << a << " and high " << b << " and mean of " << c << std::endl;
   float randnum = (float)rand() / (float)RAND_MAX;
-  //std::cout << "Rand num: " << randnum << std::endl;
   float fc = (c - a) / (b - a);
   float val;
   if (randnum < fc && fc > 0.0)
@@ -121,7 +110,6 @@ float getTrianglarDistribution(float a, float b, float c)
   {
     val = b - sqrt((1.0 - randnum)*(b - a) / (c - a));
   }
-  //std::cout << "Value is " << val << std::endl;
   return val;
   
 }
@@ -132,7 +120,10 @@ float Process::getProcessingTimeFromDist(){
     return getTrianglarDistribution(minimum, upper, average);
   }
   else if(distType == NORMAL){
-    //todo
+    return distribution(generator);
+  }
+  else if(distType == UNIFORM){
+    return U_distribution(generator);
   }
   else if(distType == CONSTANT){
     return this->constant;
@@ -143,12 +134,10 @@ float Process::getProcessingTimeFromDist(){
 //Description:set the type of process to indicate position in line
 void Process::setProcessType(int type){
   this->processType = type;
-  //std::cout<<"\tSetting process type to "<<type<<"\n";
 }
 
 //Description:standard setter for buffer capacity
 void Process::setBufferCapacity(int val,int ind){
-  //std::cout<<"\tSetting buffer capacity of "<<val<<"\n";
   this->process_Buffers[ind].capacity = val;
 }
 
@@ -237,7 +226,6 @@ void Process::setProcessParameters(std::string info){
   if (this->distType == TRIANGULAR) {
     //setParameters in process for triangular
     info.append(">");
-    //std::cout<<"Setting up triangular with string "<<info<< "\n";
     int done = 0;
     int index = 3;
     int front = 2;
@@ -247,14 +235,12 @@ void Process::setProcessParameters(std::string info){
       if(info[index]=='>'){
         done =1;
         std::string max = info.substr(front,length);
-        //std::cout<<"\tMax:"<<max<<"\n";
         upper = atof(max.c_str());
         continue;
       }
       if(info[index]==':'){
         if(num ==1){
           std::string min = info.substr(front,length);
-          //std::cout<<"\tMinimum:"<<min<<"\n";
           minimum = atof(min.c_str());
           num++;
           length = 0;
@@ -263,7 +249,6 @@ void Process::setProcessParameters(std::string info){
         }
         else if(num ==2){
           std::string avg = info.substr(front,length);
-          //std::cout<<"\tAverage:"<<avg<<"\n";
           average = atof(avg.c_str());
           num++;
           length = 0;
@@ -280,7 +265,6 @@ void Process::setProcessParameters(std::string info){
   else if(this->distType==NORMAL){
     //set for normal
     info.append(">");
-    //std::cout<<"Setting up Normal with string "<<info<< "\n";
     int done = 0;
     int index = 3;
     int front = 2;
@@ -290,14 +274,12 @@ void Process::setProcessParameters(std::string info){
       if(info[index]=='>'){
         done =1;
         std::string std = info.substr(front,length);
-        //std::cout<<"Std:"<<std<<"\n";
         normalStdDev = atof(std.c_str());
         continue;
       }
       if(info[index]==':'){
         if(num == 1){
           std::string avg = info.substr(front,length);
-          //std::cout<<"Normal Average: "<<avg<<"\n";
           normalAverage = std::atof(avg.c_str());
           num++;
           length = 0;
@@ -310,13 +292,46 @@ void Process::setProcessParameters(std::string info){
         index++;
       }
     }
+    std::normal_distribution<float> mydistribution(normalAverage,normalStdDev);
+    distribution = mydistribution;
   }
   else if(this->distType==CONSTANT){
     //set for constant
     //setParameters in process for constant
-    //std::cout<<"Setting up constant with string "<<info<< "\n";
     info.append(">");
     this->constant = std::atof(info.substr(2,info.length()-2).c_str());
-    //std::cout<<"Setting constant time of "<<this->constant<<"\n";
+  }
+  else if(this->distType==UNIFORM){
+    //set for Uniform
+    info.append(">");
+    int done = 0;
+    int index = 3;
+    int front = 2;
+    int num = 1;
+    int length = 1;
+    while(!done){
+      if(info[index]=='>'){
+        done =1;
+        std::string std = info.substr(front,length);
+        uniformUpper = atof(std.c_str());
+        continue;
+      }
+      if(info[index]==':'){
+        if(num == 1){
+          std::string avg = info.substr(front,length);
+          uniformLower = std::atof(avg.c_str());
+          num++;
+          length = 0;
+          front = index+1;
+          index++;
+        }
+      }
+      else{
+        length++;
+        index++;
+      }
+    }
+    std::uniform_real_distribution<float> myUdistribution(uniformLower,uniformUpper);
+    U_distribution = myUdistribution;
   }
 }

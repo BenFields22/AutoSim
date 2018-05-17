@@ -8,7 +8,7 @@
 //  Description: Simulation framework that creates a simulation from a text based definition.
 //  the program parses the file and creates the model. The simulation is then run producing
 //  an event log of the trial run.
-//  Next Step: Add normal distributions. Add rework.
+//  Next Step: Add looping ability.
 
 #include <iostream>
 #include "Simulation.hpp"
@@ -25,16 +25,25 @@ enum log{
 //***********************************************************
 //Function prototypes
 int indexOfClosingBracket(std::string line);
-std::vector<processInfo> getModelDefinition( int* numJobs);
+std::vector<processInfo> getModelDefinition( int* numJobs,std::string);
 void printModelDef(std::vector<processInfo> model);
 //***********************************************************
 
 //Description: Main entry point in the program
 int main(int argc, const char * argv[]) {
+  std::string fileName;
+  if(argc>1){
+    std::cout<<"Provided Model Name: "<<argv[1]<<"\n";
+    fileName = argv[1];
+  }
+  else{
+    std::cout<<"Using default model name of model.txt\n";
+    fileName = "./model.txt";
+  }
   //try block to encapsulate the simulation logic
   try {
     int numJobs;
-    std::vector<processInfo> modelDef = getModelDefinition(&numJobs);
+    std::vector<processInfo> modelDef = getModelDefinition(&numJobs,fileName);
     Simulation mySim;
     mySim.constructModel(modelDef);
     mySim.printModel();
@@ -61,10 +70,10 @@ int main(int argc, const char * argv[]) {
 }
 
 //Description:parse the text file containing the model definition
-std::vector<processInfo> getModelDefinition( int* numJobs){
+std::vector<processInfo> getModelDefinition( int* numJobs,std::string fileName){
   std::vector<processInfo> model;
   std::fstream myFile;
-  myFile.open("./model.txt");
+  myFile.open(fileName.c_str());
   if(!myFile.is_open()){
     throw std::runtime_error("ERROR: failed to open file!");
   }

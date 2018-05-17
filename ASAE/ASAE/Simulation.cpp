@@ -54,6 +54,10 @@ int Simulation::constructModel(std::vector<processInfo> &processes){
       if(this->debug)std::cout<<"Process "<<i<< " is Constant \n";
       simProcesses[i].setDistType(CONSTANT);
     }
+    else if(processes[i].processTime[0] == 'U'){
+      if(this->debug)std::cout<<"Process "<<i<< " is Uniform \n";
+      simProcesses[i].setDistType(UNIFORM);
+    }
     simProcesses[i].setProcessParameters(processes[i].processTime);
     simProcesses[i].setProcessType(processes[i].processPos);
     simProcesses[i].setUpstreamDependencies(processes[i].upStream);
