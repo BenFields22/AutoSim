@@ -44,6 +44,7 @@ int main(int argc, const char * argv[]) {
   try {
     int numJobs;
     std::vector<processInfo> modelDef = getModelDefinition(&numJobs,fileName);
+    printModelDef(modelDef);
     Simulation mySim;
     mySim.constructModel(modelDef);
     mySim.printModel();

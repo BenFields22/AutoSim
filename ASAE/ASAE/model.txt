@@ -1,25 +1,101 @@
 <MODEL>
-<100>                    #number of jobs to run
-<3>			                #Number of processes
-<PROCESS-0>		
-<T:1.0:2.0:3.0>         #Process time distribution 
-<0>                     #Position in line (0-start, 1-middle, 2-end)  
-<1,1(1.00)10>           #Down Stream connections <number, id(probability)buffer capacity, ...>
-<0>                     #upstream connections <number, (process number, buffer slot), ...>
-</PROCESS-0>
+<100>
+<14>
+<PROCESS 0>
+<T:1.0:2.0:3.0>
+<0>
+<1,01(1.00)05>
+<0>
+</PROCESS 0>
 
-<PROCESS-1>
-<U:5.0:6.0>
-<1>                       
-<1,2(1.00)05>
-<1,(0,0)>                       
-</PROCESS-1>
+<PROCESS 1>
+<T:1.0:2.0:3.0>
+<1>
+<1,02(1.00)05>
+<1,(00,0)>
+</PROCESS 1>
 
-<PROCESS-2>
-<N:5.0:0.2>
-<2>                       
-<0>               
-<1,(1,0)>          
-</PROCESS-2>
+<PROCESS 2>
+<T:1.0:2.0:3.0>
+<1>
+<1,03(1.00)05>
+<1,(01,0)>
+</PROCESS 2>
+
+<PROCESS 3>
+<T:1.0:2.0:3.0>
+<1>
+<1,04(1.00)05>
+<1,(02,0)>
+</PROCESS 3>
+
+<PROCESS 4>
+<T:1.0:2.0:3.0>
+<1>
+<1,05(1.00)05>
+<3,(07,0),(08,0),(03,0)>
+</PROCESS 4>
+
+<PROCESS 5>
+<T:1.0:2.0:3.0>
+<1>
+<1,06(1.00)05>
+<1,(04,0)>
+</PROCESS 5>
+
+<PROCESS 6>
+<T:1.0:2.0:3.0>
+<2>
+<0>
+<1,(05,0)>
+</PROCESS 6>
+
+<PROCESS 7>
+<T:1.0:2.0:3.0>
+<1>
+<1,04(1.00)05>
+<3,(09,0),(10,0),(11,0)>
+</PROCESS 7>
+
+<PROCESS 8>
+<T:1.0:5.0:8.0>
+<1>
+<1,04(1.00)05>
+<2,(12,0),(13,0)>
+</PROCESS 8>
+
+<PROCESS 9>
+<T:1.0:2.0:3.0>
+<0>
+<1,07(1.00)05>
+<0>
+</PROCESS 9>
+
+<PROCESS 10>
+<T:1.0:2.0:3.0>
+<0>
+<1,07(1.00)05>
+<0>
+</PROCESS 10>
+
+<PROCESS 11>
+<T:1.0:2.0:3.0>
+<0>
+<1,07(1.00)05>
+<0>
+</PROCESS 11>
+
+<PROCESS 12>
+<T:1.0:2.0:3.0>
+<0>
+<1,08(1.00)05>
+<0>
+</PROCESS 12>
+
+<PROCESS 13>
+<T:1.0:2.0:3.0>
+<0>
+<1,08(1.00)05>
+<0>
+</PROCESS 13>
 </MODEL>
-

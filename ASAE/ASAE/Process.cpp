@@ -55,10 +55,10 @@ void Process::setUpstreamDependencies(std::string line){
   for(int i = 0;i<num;i++){
     //create each dependency
     upStreamConnection conn;
-    conn.processID = std::atoi(line.substr(start,1).c_str());
-    conn.bufferIndex = std::atoi(line.substr(start+2,1).c_str());
+    conn.processID = std::atoi(line.substr(start,2).c_str());
+    conn.bufferIndex = std::atoi(line.substr(start+3,1).c_str());
     upStreamDependencies.push_back(conn);
-    start = start + 6;
+    start = start + 7;
   }
 }
 
@@ -69,6 +69,7 @@ void Process::printNumInBuffers(){
   }
 }
 
+
 //Description:create the downstream dependencies to control flow. limited to 0-9
 void Process::setDownstreamDependencies(std::string line){
   int num = std::atoi(line.substr(0,1).c_str());
@@ -77,10 +78,11 @@ void Process::setDownstreamDependencies(std::string line){
   for(int i = 0;i<num;i++){
     //create each dependency
     downStreamConnection conn;
-    conn.processID = std::atoi(line.substr(start,1).c_str());
-    conn.percentage = std::atof(line.substr(start+2,4).c_str());
+    
+    conn.processID = std::atoi(line.substr(start,2).c_str());
+    conn.percentage = std::atof(line.substr(start+3,4).c_str());
     total = total + conn.percentage;
-    conn.capacity = std::atoi(line.substr(start+7,2).c_str());
+    conn.capacity = std::atoi(line.substr(start+8,2).c_str());
     if(conn.capacity<1||conn.capacity>99){
       throw std::runtime_error("\nBUFFER CAPACITY ERROR: Cannot have a capacity less than 1 or greater than 99!\n");
     }
@@ -88,7 +90,7 @@ void Process::setDownstreamDependencies(std::string line){
     Buffer buff;
     buff.capacity = conn.capacity;
     process_Buffers.push_back(buff);
-    start = start +10;
+    start = start +11;
   }
   
   if(abs(total-1.00) > 0.0001 && num != 0){

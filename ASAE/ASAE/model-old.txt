@@ -1,0 +1,25 @@
+<MODEL>
+<100>                    #number of jobs to run
+<3>			                #Number of processes
+<PROCESS-0>		
+<T:1.0:2.0:3.0>         #Process time distribution 
+<0>                     #Position in line (0-start, 1-middle, 2-end)  
+<1,01(1.00)10>           #Down Stream connections <number, id(probability)buffer capacity, ...>
+<0>                     #upstream connections <number, (process number, buffer slot), ...>
+</PROCESS-0>
+
+<PROCESS-1>
+<U:5.0:6.0>
+<1>                       
+<1,02(1.00)05>
+<1,(00,0)>
+</PROCESS-1>
+
+<PROCESS-2>
+<N:5.0:0.2>
+<2>                       
+<0>               
+<1,(01,0)>
+</PROCESS-2>
+</MODEL>
+
