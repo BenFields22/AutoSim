@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <unordered_set>
 #include <sstream>
+#include <ctime>
 
 //Description: main class that runs the simulation
 class Simulation{

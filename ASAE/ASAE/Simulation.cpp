@@ -27,6 +27,7 @@ Simulation::Simulation(){
   timeStep = 0.001;
   startFile<<"JobID Start,StartTime,Resource,JobsInSystem\n";
   finishFile<<"JobID END,ExitTime,JobsInSystem\n";
+  srand((int)time(NULL));
 }
 
 //Description:destructor to save and close excel workbook
