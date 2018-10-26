@@ -49,16 +49,16 @@ DataCrawler::~DataCrawler(){
 //Description: Main runner to extract all process information from event data
 void DataCrawler::run(){
   std::cout<<"\n\n*********Starting DataCrawler**********\n";
-  std::cout<<"Number of Starts: "<<myStarts.size()<<"\n";
-  std::cout<<"Number of Finishes: "<<myFinishs.size()<<"\n";
+  std::cout<<"Number of Starts: "<<myStarts.size()-1<<"\n";
+  std::cout<<"Number of Finishes: "<<myFinishs.size()-1<<"\n";
   
   auto now = std::chrono::system_clock::now();
   std::time_t time = std::chrono::system_clock::to_time_t(now);
   resultsFile<<"Results for "<<std::ctime(&time)<<"\n";
   std::cout<<"Results for "<<std::ctime(&time)<<"\n";
   
-  resultsFile<<"Number of Start Records: "<<myStarts.size()<<"\n";
-  resultsFile<<"Number of Finish Records: "<<myFinishs.size()<<"\n\n";
+  resultsFile<<"Number of Start Records: "<<myStarts.size()-1<<"\n";
+  resultsFile<<"Number of Finish Records: "<<myFinishs.size()-1<<"\n\n";
   
   float endTime = myFinishs.back().time;
   std::cout<<"Simulation runtime: "<<endTime<<"\n";
